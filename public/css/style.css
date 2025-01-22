@@ -1,0 +1,19 @@
+@media (max-width: 800px) {
+    .card-container {
+        flex-direction: column !important;
+    }
+
+    .card-container div.bg-white {
+        width: 80%;
+        margin-bottom: 20px;
+    }
+
+    form.flex.justify-center.px-6.translater-form {
+        flex-direction: column !important;
+    }
+
+    .translater-form .rounded-lg {
+        margin-left: unset !important;
+        width: 100%;
+    }
+}

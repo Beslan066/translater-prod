@@ -54,29 +54,29 @@
                 <form method="POST" action="{{ route('translate.save') }}" class="flex justify-center px-6 translater-form">
                     @csrf
 
-                    <div class="w-1/2 mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 ">
+                    <div class="w-1/2 mb-4 border border-gray-200 rounded-lg bg-gray-50 ">
                         <select name="sentence_id" style="opacity: 0;">
                             <option value="{{$sentence->id}}">{{$sentence->id}}</option>
                         </select>
-                        <div class="px-4 py-2 bg-white rounded-t-lg dark:bg-gray-800 ">
+                        <div class="px-4 py-2 bg-white rounded-t-lg ">
                             <label for="comment" class="sr-only">Оригинал предложение</label>
-                            <textarea id="comment" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="" readonly>{{ $sentence->sentence }}</textarea>
+                            <textarea id="comment" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 focus:ring-0" placeholder="" readonly>{{ $sentence->sentence }}</textarea>
                         </div>
                     </div>
 
-                    <div class="w-1/2 mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 ml-6">
-                        <div class="px-4 py-2 bg-white rounded-t-lg dark:bg-gray-800">
+                    <div class="w-1/2 mb-4 border border-gray-200 rounded-lg bg-gray-50 ml-6">
+                        <div class="px-4 py-2 bg-white rounded-t-lg">
                             <label for="comment" class="sr-only">Введите предложение</label>
-                            <textarea id="comment" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Впишите перевод" name="translation" required ></textarea>
+                            <textarea id="comment" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 focus:ring-0" placeholder="Впишите перевод" name="translation" required ></textarea>
                         </div>
                         <select name="user_id" style="opacity: 0;">
                             <option value="{{auth()->user()->id}}">{{auth()->user()->id}}</option>
                         </select>
-                        <div class="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
+                        <div class="flex items-center justify-between px-3 py-2 border-t">
                             <div class="sentence-price">
                                 <p>Стоимость перевода: <span class="text-green-900 focus:text-red-600 ...">10</span> рублей</p>
                             </div>
-                            <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
+                            <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 hover:bg-blue-800">
                                 Перевод
                             </button>
                         </div>
@@ -129,8 +129,8 @@
                 <div class="container mx-auto p-6 flex flex-col justify-between card-container">
                     <h3 class="mb-8">Предложения в процессе {{$sentencesTranslate->count()}}:</h3>
                     <div class="relative overflow-x-auto">
-                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3">
                                     Идентификатор
@@ -155,8 +155,8 @@
                             </thead>
                             <tbody>
                             @foreach($sentencesTranslate as $item)
-                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <tr class="bg-white border-b">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                         {{$item->id}}
                                     </th>
                                     <td class="px-6 py-4">
@@ -198,12 +198,12 @@
                                     <td class="px-6 py-4">
                                         <form action="{{route('sentences.approve', $item->id)}}" method="post">
                                             @csrf
-                                            <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Подтвердить</button>
+                                            <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Подтвердить</button>
                                         </form>
 
                                         <form action="{{route('sentences.reject', $item->id)}}" method="post">
                                             @csrf
-                                            <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Отклонить</button>
+                                            <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Отклонить</button>
                                         </form>
                                     </td>
                                 </tr>

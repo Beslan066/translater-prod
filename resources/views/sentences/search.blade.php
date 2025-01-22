@@ -9,8 +9,8 @@
         </div>
         <div class="relative overflow-x-auto px-6">
             <div class="relative overflow-x-auto px-6 ">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3">
                             Идентификатор
@@ -35,8 +35,8 @@
                     <tbody>
                     @foreach($sentencesTranslate as $item)
                         @foreach($translates as $translate) @endforeach
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <tr class="bg-white border-b">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                 {{$item->id}}
                             </th>
                             <td class="px-6 py-4">
@@ -60,7 +60,7 @@
                 </table>
             </div>
             <div>
-                <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline p-6" href="{{route('home')}}">Назад</a>
+                <a class="font-medium text-blue-600 hover:underline p-6" href="{{route('home')}}">Назад</a>
             </div>
            <div>
                {{ $sentencesTranslate->links() }}

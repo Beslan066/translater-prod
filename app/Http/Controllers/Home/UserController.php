@@ -13,7 +13,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::query()->orderBy('created_at', 'desc')->get();
         $roles = User::getRoles();
 
 
@@ -47,6 +47,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return view('users');
+        return redirect()->route('users.index');
     }
 }

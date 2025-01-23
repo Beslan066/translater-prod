@@ -138,7 +138,6 @@ class SentenceController extends Controller
     }
 
 
-
     public function saveTranslation(Request $request)
     {
 
@@ -165,6 +164,24 @@ class SentenceController extends Controller
 
         return redirect()->route('translate')->with('error', 'Failed to save translation.');
     }
+
+    public function editTranslation(Request $request, Translate $translation)
+    {
+        $request->validate([
+            'translation' => 'required|string',
+        ]);
+
+        if (Auth::check()) {
+            $translation->update([
+                'translation' => $request->translation,
+            ]);
+
+            return redirect()->route('translate')->with('success', 'Translation updated successfully.');
+        }
+
+        return redirect()->route('translate')->with('error', 'Failed to update translation.');
+    }
+
 
     public function approveTranslation(Request $request, Sentence $sentence)
     {

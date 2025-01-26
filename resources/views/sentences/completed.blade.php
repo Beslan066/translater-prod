@@ -85,10 +85,11 @@
                     </tr>
                     @endforeach
                 </tbody>
-                <div>
-                    {{$sentencesTranslateCompleted->links()}}
-                </div>
             </table>
+            <div class="mt-4">
+                {{$sentencesTranslateCompleted->links()}}
+            </div>
+
         </div>
 
     </div>

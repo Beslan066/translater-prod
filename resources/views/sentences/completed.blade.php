@@ -85,6 +85,9 @@
                     </tr>
                     @endforeach
                 </tbody>
+                <div>
+                    {{$sentencesTranslateCompleted->links()}}
+                </div>
             </table>
         </div>
 

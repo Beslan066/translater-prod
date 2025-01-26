@@ -59,7 +59,7 @@
 
                 <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
                     <div>
-                        Переведено: <strong class="text-green-900 focus:text-red-600 ...">{{$sentencesTranslateCompleted->count()}}</strong>
+                        Переведено: <strong class="text-green-900 focus:text-red-600 ...">{{$sentencesTranslateCompletedCount}}</strong>
                     </div>
                     <div>
                         <a class="flex flex-col items-center" style="cursor: pointer;" href="{{route('sentence.completed')}}">
@@ -165,10 +165,12 @@
                             </td>
                         </tr>
                     @endforeach
-
-
                     </tbody>
                 </table>
+
+                <div class="mt-4">
+                    {{$sentencesTranslate->links()}}
+                </div>
 
                 <div class="mt-4">
                     <a class="text-red-800 text-xl	" href="{{route('sentence.district')}}">Показать отклоненные предложения</a>

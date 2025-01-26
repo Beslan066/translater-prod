@@ -13,15 +13,18 @@ class HomeController extends Controller
     public function index() {
 	$sentences = Sentence::paginate(12);
 	$sentencesTranslate = Sentence::with(['translations', 'author']) ->where('status', 1) ->orderBy('id', 'desc') ->paginate(30); 
-	$sentencesTranslateCompleted = Sentence::query()->where('status', 2)->orderBy('id', 'desc')->paginate(30); 
-	$users = User::query()
+	$sentencesTranslateCompleted = Sentence::query()->where('status', 2)->orderBy('id', 'desc')->get();
+
+    $sentencesTranslateCompletedCount = count($sentencesTranslateCompleted);
+
+        $users = User::query()
 		->where('role', 3)
 		->get();
 
         if(auth()->user()->role == 0) {
 		return redirect()->route('login');
         }elseif(auth()->user()->role == 1) {
-            return view('welcome' , compact('users', 'sentencesTranslate', 'sentencesTranslateCompleted'));
+            return view('welcome' , compact('users', 'sentencesTranslate', 'sentencesTranslateCompletedCount'));
         }else {
             return redirect()->route('translate');
         }

@@ -121,9 +121,20 @@ class SentenceController extends Controller
 
 
 
-        if(\auth()->user()->role) {
-            $completedSentences = Translate::query()->where('user_id', \auth()->user()->id)->get();
+        if (\auth()->user()->role) {
+            $completedSentences = Translate::query()
+                ->where('user_id', \auth()->user()->id)
+                ->whereHas('sentence', function ($query) {
+                    $query->where('status', 2); // Учитываем только предложения со статусом 2
+                })
+                ->with('sentence') // Подгружаем связанные предложения
+                ->get();
+
+            $totalEarnings = $completedSentences->sum(function ($translation) {
+                return $translation->sentence->price ?? 0; // Суммируем price из связанных предложений
+            });
         }
+
 
         $deletedSentences = Translate::query()->where('deleted_at', '!=', null)->get();
 
@@ -134,6 +145,7 @@ class SentenceController extends Controller
             'users' => $users,
             'completedSentences' => $completedSentences,
             'deletedSentences' => $deletedSentences,
+            'totalEarnings' => $totalEarnings
         ]);
     }
 

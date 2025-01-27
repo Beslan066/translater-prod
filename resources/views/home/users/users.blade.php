@@ -20,6 +20,9 @@
                         <th scope="col" class="px-6 py-3">
                             Роль
                         </th>
+                        <th scope="col" class="px-6 py-3">
+                            Заработано
+                        </th>
                         @if(auth()->user()->role === 1)
                             <th scope="col" class="px-6 py-3">
                                 Действие
@@ -42,6 +45,13 @@
                             <td class="px-6 py-4">
                                 {{\App\Models\User::getRoleName($user->role)}}
                             </td>
+
+                            @if(isset($user->total_earnings))
+                                <td class="px-6 py-4">
+                                    {{$user->total_earnings}}
+                                </td>
+                            @endif
+
                             @if(auth()->user()->role === 1)
                                 <td class="px-6 py-4 flex items-center">
                                     @if($user->role !== 1)

@@ -13,13 +13,32 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::query()->orderBy('created_at', 'desc')->get();
+        // Получение пользователей с их переводами и предложениями со статусом = 2
+        $users = User::query()
+            ->with(['translations.sentence' => function ($query) {
+                $query->where('status', 2); // Учитываем только предложения со статусом = 2
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Список ролей пользователей
         $roles = User::getRoles();
 
+        // Расчет заработков пользователей
+        $users = $users->map(function ($user) {
+            $user->total_earnings = $user->translations
+                ->map(function ($translation) {
+                    return $translation->sentence ? $translation->sentence->price : 0;
+                })
+                ->sum();
 
+            return $user;
+        });
 
         return view('home.users.users', compact('users', 'roles'));
     }
+
+
 
     public function edit(User $user)
     {

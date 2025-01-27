@@ -74,7 +74,7 @@
                         </select>
                         <div class="flex items-center justify-between px-3 py-2 border-t">
                             <div class="sentence-price">
-                                <p>Стоимость перевода: <span class="text-green-900 focus:text-red-600 ...">10</span> рублей</p>
+                                <p>Стоимость перевода: <span class="text-green-900 focus:text-red-600 ...">{{$sentence->price}}</span> рублей</p>
                             </div>
                             <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 hover:bg-blue-800">
                                 Перевод
@@ -111,11 +111,10 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
+                <div class="bg-white p-6 rounded shadow-md w-1/3 mx-8 flex justify-between items-center">
                     <div>
-                        Заработано: <strong class="text-green-900 focus:text-red-600 ...">{{$completedSentences->count() * 10}} рублей</strong>
+                        Заработано: <strong class="text-green-900 focus:text-red-600 ...">{{$totalEarnings}} рублей</strong>
                     </div>
-
                 </div>
 
 

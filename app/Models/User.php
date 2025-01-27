@@ -72,4 +72,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function translations()
+    {
+        return $this->hasMany(Translate::class, 'user_id', 'id');
+    }
 }

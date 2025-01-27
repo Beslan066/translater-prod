@@ -29,7 +29,7 @@
         <div class="container mx-auto p-6 flex justify-between card-container">
             <div class="bg-white p-6 rounded shadow-md mx-8 w-1/3 flex justify-between items-center">
                 <div>
-                    В базе <strong class="text-green-900 focus:text-red-600 ...">1млн</strong> предложений!
+                    В базе <strong class="text-green-900 focus:text-red-600 ...">{{$sentencesCount}}</strong> предложений!
                 </div>
                 <div class="flex flex-col items-center">
                     <form action="{{route('sentences.delete')}}" method="post">

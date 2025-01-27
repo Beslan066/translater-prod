@@ -32,18 +32,17 @@
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 },
                 error: function(xhr, status, error) {
-                    console.log(xhr.responseText); // Вывод полного ответа сервера
+                    console.log(xhr.responseText); // Выводим полный ответ сервера
                     let errorMessage = 'Произошла ошибка.';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     } else if (xhr.responseText) {
                         errorMessage = xhr.responseText;
                     }
-                    $('#modalTitle').text('Error');
-                    $('#modalMessage').text('An error occurred: ' + errorMessage);
+                    $('#modalTitle').text('Ошибка');
+                    $('#modalMessage').text('Произошла ошибка: ' + errorMessage);
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 }
-
             });
         });
 

@@ -24,7 +24,7 @@ class HomeController extends Controller
         if(auth()->user()->role == 0) {
 		return redirect()->route('login');
         }elseif(auth()->user()->role == 1) {
-            return view('welcome' , compact('users', 'sentencesTranslate', 'sentencesTranslateCompletedCount'));
+            return view('welcome' , compact('users', 'sentencesTranslate', 'sentencesTranslateCompletedCount', 'sentences'));
         }else {
             return redirect()->route('translate');
         }

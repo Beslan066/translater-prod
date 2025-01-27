@@ -3,9 +3,7 @@
 @section('content')
 
     @if(auth()->user()->role == 1)
-	@if(isset($sentences))
-	
-	@if($sentences->count() == 0)
+        @if($sentences->count() == 0)
             <div class="container mx-auto p-6">
                 <h2 class="text-3xl font-extrabold dark:text-white py-4">Загрузите файл корпуса и предложения отобразятся на странице</h2>
                 <form id="uploadForm" action="{{ route('sentences.upload') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md">
@@ -25,53 +23,55 @@
                 <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
             </div>
             <p id="progress-text">0%</p>
-	@endif
-	@else
-            <div class="container mx-auto p-6 flex justify-between card-container">
-                <div class="bg-white p-6 rounded shadow-md mx-8 w-1/3 flex justify-between items-center">
-                    <div>
-                        В базе <strong class="text-green-900 focus:text-red-600 ...">1млн</strong> предложений!
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <form action="{{route('sentences.delete')}}" method="post">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-                                <img src="{{asset('img/icons/delete.svg')}}" alt="" style="width: 20px; height: 20px">
-                            </button>
-                        </form>
-                        <span style="color: rgb(26 86 219)">Очистить</span>
-
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
-                    <div>
-                        В базе <strong class="text-green-900 focus:text-red-600 ...">{{$users->count()}}</strong> учитель!
-                    </div>
-                    <div>
-                        <a href="{{route('users.index')}}" class="flex flex-col items-center" style="cursor: pointer;">
-                            <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
-                            <span style="color: rgb(26 86 219)">показать</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
-                    <div>
-                        Переведено: <strong class="text-green-900 focus:text-red-600 ...">{{$sentencesTranslateCompletedCount}}</strong>
-                    </div>
-                    <div>
-                        <a class="flex flex-col items-center" style="cursor: pointer;" href="{{route('sentence.completed')}}">
-                            <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
-                            <span style="color: rgb(26 86 219)">показать</span>
-                        </a>
-                    </div>
-                </div>
-
-
-            </div>
         @endif
+
+
+        <div class="container mx-auto p-6 flex justify-between card-container">
+            <div class="bg-white p-6 rounded shadow-md mx-8 w-1/3 flex justify-between items-center">
+                <div>
+                    В базе <strong class="text-green-900 focus:text-red-600 ...">1млн</strong> предложений!
+                </div>
+                <div class="flex flex-col items-center">
+                    <form action="{{route('sentences.delete')}}" method="post">
+                        @csrf
+                        @method('delete')
+                        <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                            <img src="{{asset('img/icons/delete.svg')}}" alt="" style="width: 20px; height: 20px">
+                        </button>
+                    </form>
+                    <span style="color: rgb(26 86 219)">Очистить</span>
+
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
+                <div>
+                    В базе <strong class="text-green-900 focus:text-red-600 ...">{{$users->count()}}</strong> учитель!
+                </div>
+                <div>
+                    <a href="{{route('users.index')}}" class="flex flex-col items-center" style="cursor: pointer;">
+                        <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
+                        <span style="color: rgb(26 86 219)">показать</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">
+                <div>
+                    Переведено: <strong class="text-green-900 focus:text-red-600 ...">{{$sentencesTranslateCompletedCount}}</strong>
+                </div>
+                <div>
+                    <a class="flex flex-col items-center" style="cursor: pointer;" href="{{route('sentence.completed')}}">
+                        <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
+                        <span style="color: rgb(26 86 219)">показать</span>
+                    </a>
+                </div>
+            </div>
+
+
+        </div>
+	@else
+
     @endif
 
 

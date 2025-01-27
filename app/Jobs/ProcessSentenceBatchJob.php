@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Bus\Batchable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 
 class ProcessSentenceBatchJob implements ShouldQueue
@@ -25,26 +26,50 @@ class ProcessSentenceBatchJob implements ShouldQueue
 
     public function handle()
     {
+        try {
+            // Данные для массовой вставки
+            $data = [];
 
-        $total = Cache::increment('processed_sentences', count($this->sentences));
+            foreach ($this->sentences as $sentence) {
+                $trimmedSentence = trim($sentence);
+                $length = mb_strlen($trimmedSentence);
 
-        foreach ($this->sentences as $sentence) {
-            $trimmedSentence = trim($sentence);
-            $length = mb_strlen($trimmedSentence);
+                if (!empty($trimmedSentence)) {
+                    // Определяем цену в зависимости от длины предложения
+                    $price = match (true) {
+                        $length <= 100 => 6,
+                        $length <= 200 => 12,
+                        default => 18,
+                    };
 
-            if (!empty($trimmedSentence)) {
-                $price = match (true) {
-                    $length <= 100 => 6,
-                    $length <= 200 => 12,
-                    default => 18,
-                };
-
-                Sentence::create([
-                    'sentence' => $trimmedSentence,
-                    'price' => $price,
-                ]);
+                    // Формируем массив для массовой вставки
+                    $data[] = [
+                        'sentence' => $trimmedSentence,
+                        'price' => $price,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
+
+            // Если есть данные для вставки, делаем массовую вставку
+            if (!empty($data)) {
+                Sentence::insert($data);
+            }
+
+            // Обновляем счетчик в кеше
+            Cache::increment('processed_sentences', count($data));
+        } catch (\Exception $e) {
+            // Логируем ошибку
+            Log::channel('sentence_jobs')->error('Ошибка в ProcessSentenceBatchJob: ' . $e->getMessage(), [
+                'sentences' => $this->sentences,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Бросаем исключение, чтобы задача могла быть повторно обработана
+            throw $e;
         }
     }
+
 }
 

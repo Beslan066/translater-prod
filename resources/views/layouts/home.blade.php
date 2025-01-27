@@ -32,17 +32,25 @@
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 },
                 error: function(xhr, status, error) {
-                    console.log(xhr.responseText); // Выводим полный ответ сервера
+                    console.log(xhr.responseText); // Логирование в консоль для отладки
+
                     let errorMessage = 'Произошла ошибка.';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     } else if (xhr.responseText) {
                         errorMessage = xhr.responseText;
                     }
+
+                    // Добавляем отладочную информацию, если доступна
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errorMessage += '\n' + JSON.stringify(xhr.responseJSON.errors);
+                    }
+
                     $('#modalTitle').text('Ошибка');
                     $('#modalMessage').text('Произошла ошибка: ' + errorMessage);
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 }
+
             });
         });
 

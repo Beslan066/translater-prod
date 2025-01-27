@@ -126,6 +126,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        'sentence_jobs' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/sentence_jobs.log'),
+            'level' => 'error',
+        ],
+
 
     ],
 

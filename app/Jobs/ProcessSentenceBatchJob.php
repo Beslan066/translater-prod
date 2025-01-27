@@ -34,9 +34,9 @@ class ProcessSentenceBatchJob implements ShouldQueue
 
             if (!empty($trimmedSentence)) {
                 $price = match (true) {
-                    $length <= 100 => 5,
-                    $length <= 200 => 10,
-                    default => 15,
+                    $length <= 100 => 6,
+                    $length <= 200 => 12,
+                    default => 18,
                 };
 
                 Sentence::create([

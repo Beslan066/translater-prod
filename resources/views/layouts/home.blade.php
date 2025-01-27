@@ -32,10 +32,18 @@
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 },
                 error: function(xhr, status, error) {
+                    console.log(xhr.responseText); // Вывод полного ответа сервера
+                    let errorMessage = 'Произошла ошибка.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
                     $('#modalTitle').text('Error');
-                    $('#modalMessage').text('An error occurred: ' + xhr.responseJSON.message);
+                    $('#modalMessage').text('An error occurred: ' + errorMessage);
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 }
+
             });
         });
 

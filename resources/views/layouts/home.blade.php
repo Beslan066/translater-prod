@@ -16,59 +16,42 @@
 
 
 <script>
-    $(document).ready(function() {
-        $('#uploadForm').on('submit', function(event) {
+    $(document).ready(function () {
+        $('#uploadForm').on('submit', function (event) {
             event.preventDefault();
             var formData = new FormData(this);
+
             $.ajax({
                 url: $(this).attr('action'),
                 method: $(this).attr('method'),
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
+                success: function (response) {
                     $('#modalTitle').text('Успешно!');
-                    $('#modalMessage').text('Ваш файл был успешно загружен');
+                    $('#modalMessage').text(response.message + ' Обработано строк: ' + response.total_lines);
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseText); // Логирование в консоль для отладки
-
-                    let errorMessage = 'Произошла ошибка.';
+                error: function (xhr) {
+                    let errorMessage = 'Произошла ошибка: ';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    } else if (xhr.responseText) {
-                        errorMessage = xhr.responseText;
-                    }
-
-                    // Добавляем отладочную информацию, если доступна
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        errorMessage += '\n' + JSON.stringify(xhr.responseJSON.errors);
+                        errorMessage += xhr.responseJSON.message;
+                    } else {
+                        errorMessage += 'Неизвестная ошибка.';
                     }
 
                     $('#modalTitle').text('Ошибка');
-                    $('#modalMessage').text('Произошла ошибка: ' + errorMessage);
+                    $('#modalMessage').text(errorMessage);
                     $('#resultModal').removeClass('hidden').addClass('flex');
                 }
-
             });
         });
 
-        $('#closeModalButton').on('click', function() {
+        $('#closeModalButton').on('click', function () {
             $('#resultModal').removeClass('flex').addClass('hidden');
         });
     });
 
-    $('#viewLogsButton').on('click', function() {
-        $.getJSON('{{ route("logs.view") }}', function(data) {
-            if (data.logs) {
-                $('#logsContent').html(data.logs);
-                $('#logsContainer').removeClass('hidden');
-            } else {
-                alert(data.message);
-            }
-        });
-    });
 
 </script>
 

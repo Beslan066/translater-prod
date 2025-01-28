@@ -22,18 +22,19 @@ class SentenceController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:txt|max:307200',
+            'file' => 'required|file|mimes:txt|max:307200', // Ограничение на загрузку до 300 МБ
         ]);
 
         $file = $request->file('file');
         $filePath = $file->getRealPath();
 
         $chunkSize = 1000; // Количество строк на один чанк
+        $totalLines = 0;
 
-        // Начинаем обработку файла
         if (($handle = fopen($filePath, 'r')) !== false) {
-            DB::beginTransaction();
             try {
+                DB::beginTransaction();
+
                 $batch = Bus::batch([])->dispatch();
                 $currentBatch = [];
 
@@ -47,6 +48,8 @@ class SentenceController extends Controller
                             $batch->add(new ProcessSentenceBatchJob($currentBatch));
                             $currentBatch = [];
                         }
+
+                        $totalLines++;
                     }
                 }
 
@@ -57,16 +60,28 @@ class SentenceController extends Controller
 
                 fclose($handle);
                 DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Файл отправлен в очередь на обработку.',
+                    'total_lines' => $totalLines,
+                    'batch_id' => $batch->id,
+                ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->withErrors(['error' => $e->getMessage()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ошибка обработки файла: ' . $e->getMessage(),
+                ], 500);
             }
         } else {
-            return back()->withErrors(['error' => 'Не удалось открыть файл.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось открыть файл.',
+            ], 500);
         }
-
-        return back()->with('success', 'Файл загружается. Проверьте прогресс.');
     }
+
 
 
     public function progress()

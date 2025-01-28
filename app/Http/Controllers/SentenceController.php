@@ -22,7 +22,7 @@ class SentenceController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:txt',
+            'file' => 'required|file|mimes:txt|max:307200',
         ]);
 
         $file = $request->file('file');

@@ -28,53 +28,46 @@ class SentenceController extends Controller
         $file = $request->file('file');
         $filePath = $file->getRealPath();
 
-        // Разделим файл на чанки
         $chunkSize = 1000; // Количество строк на один чанк
-        $chunks = [];
-        $currentBatch = [];
 
-        // Открываем файл построчно
+        // Начинаем обработку файла
         if (($handle = fopen($filePath, 'r')) !== false) {
-            while (($line = fgets($handle)) !== false) {
-                $trimmedLine = trim($line);
+            DB::beginTransaction();
+            try {
+                $batch = Bus::batch([])->dispatch();
+                $currentBatch = [];
 
-                if (!empty($trimmedLine)) {
-                    $currentBatch[] = $trimmedLine;
+                while (($line = fgets($handle)) !== false) {
+                    $trimmedLine = trim($line);
 
-                    if (count($currentBatch) >= $chunkSize) {
-                        $chunks[] = $currentBatch;
-                        $currentBatch = [];
+                    if (!empty($trimmedLine)) {
+                        $currentBatch[] = $trimmedLine;
+
+                        if (count($currentBatch) >= $chunkSize) {
+                            $batch->add(new ProcessSentenceBatchJob($currentBatch));
+                            $currentBatch = [];
+                        }
                     }
                 }
-            }
 
-            if (count($currentBatch) > 0) {
-                $chunks[] = $currentBatch;
-            }
+                // Обработка последнего чанка
+                if (count($currentBatch) > 0) {
+                    $batch->add(new ProcessSentenceBatchJob($currentBatch));
+                }
 
-            fclose($handle);
+                fclose($handle);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->withErrors(['error' => $e->getMessage()]);
+            }
         } else {
             return back()->withErrors(['error' => 'Не удалось открыть файл.']);
         }
 
-        // Создаем задачи для обработки чанков
-        DB::beginTransaction();
-        try {
-            $batch = Bus::batch([])->dispatch();
-
-            foreach ($chunks as $chunk) {
-                $batch->add(new ProcessSentenceBatchJob($chunk));
-            }
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
-
         return back()->with('success', 'Файл загружается. Проверьте прогресс.');
-
     }
+
 
     public function progress()
     {

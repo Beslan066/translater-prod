@@ -27,7 +27,7 @@ class ProcessSentenceBatchJob implements ShouldQueue
     public function handle()
     {
         try {
-            // Данные для массовой вставки
+            Log::info('Начало обработки чанка', ['memory' => memory_get_usage()]);
             $data = [];
 
             foreach ($this->sentences as $sentence) {
@@ -35,14 +35,12 @@ class ProcessSentenceBatchJob implements ShouldQueue
                 $length = mb_strlen($trimmedSentence);
 
                 if (!empty($trimmedSentence)) {
-                    // Определяем цену в зависимости от длины предложения
                     $price = match (true) {
                         $length <= 100 => 6,
                         $length <= 200 => 12,
                         default => 18,
                     };
 
-                    // Формируем массив для массовой вставки
                     $data[] = [
                         'sentence' => $trimmedSentence,
                         'price' => $price,
@@ -52,24 +50,22 @@ class ProcessSentenceBatchJob implements ShouldQueue
                 }
             }
 
-            // Если есть данные для вставки, делаем массовую вставку
             if (!empty($data)) {
                 Sentence::insert($data);
             }
 
-            // Обновляем счетчик в кеше
             Cache::increment('processed_sentences', count($data));
+            Log::info('Чанк успешно обработан', ['memory' => memory_get_usage()]);
         } catch (\Exception $e) {
-            // Логируем ошибку
             Log::channel('sentence_jobs')->error('Ошибка в ProcessSentenceBatchJob: ' . $e->getMessage(), [
                 'sentences' => $this->sentences,
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Бросаем исключение, чтобы задача могла быть повторно обработана
             throw $e;
         }
     }
+
 
 }
 

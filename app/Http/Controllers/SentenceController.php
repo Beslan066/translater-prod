@@ -33,7 +33,7 @@ class SentenceController extends Controller
 
         if (($handle = fopen($filePath, 'r')) !== false) {
             try {
-                DB::beginTransaction();
+                DB::beginTransaction(); // Начинаем транзакцию
 
                 $batch = Bus::batch([])->dispatch();
                 $currentBatch = [];
@@ -59,7 +59,8 @@ class SentenceController extends Controller
                 }
 
                 fclose($handle);
-                DB::commit();
+
+                DB::commit(); // Завершаем транзакцию
 
                 return response()->json([
                     'success' => true,
@@ -68,19 +69,29 @@ class SentenceController extends Controller
                     'batch_id' => $batch->id,
                 ], 200);
             } catch (\Exception $e) {
+                // В случае ошибки откатываем транзакцию
                 DB::rollBack();
+
+                Log::error('Ошибка при загрузке файла: ' . $e->getMessage(), [
+                    'stack' => $e->getTraceAsString(),
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Ошибка обработки файла: ' . $e->getMessage(),
+                    'stack' => $e->getTraceAsString(),  // Добавляем стек ошибки для отладки
                 ], 500);
             }
         } else {
+            // Если файл не удалось открыть, откатываем все изменения
+            Log::error('Не удалось открыть файл', ['file' => $filePath]);
             return response()->json([
                 'success' => false,
                 'message' => 'Не удалось открыть файл.',
             ], 500);
         }
     }
+
 
 
 

@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
 
 
     Route::post('/upload', [SentenceController::class, 'upload'])->name('sentences.upload');
+    Route::get('/logs/view', [SentenceController::class, 'getLogs'])->name('logs.view');
+
     Route::post('/sentences/{sentence}/approve', [SentenceController::class, 'approveTranslation'])->name('sentences.approve');
     Route::post('/sentences/{sentence}/reject', [SentenceController::class, 'rejectTranslation'])->name('sentences.reject');
     Route::get('/sentences/moderating', [SentenceController::class, 'moderate'])->name('sentence.moderate');

@@ -18,6 +18,15 @@
                 </form>
             </div>
 
+            <div class="my-4">
+                <button id="viewLogsButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Посмотреть логи
+                </button>
+                <div id="logsContainer" class="mt-4 p-4 bg-gray-100 rounded hidden">
+                    <pre id="logsContent"></pre>
+                </div>
+            </div>
+
 
             <div class="progress">
                 <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>

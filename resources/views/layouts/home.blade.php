@@ -59,6 +59,17 @@
         });
     });
 
+    $('#viewLogsButton').on('click', function() {
+        $.getJSON('{{ route("logs.view") }}', function(data) {
+            if (data.logs) {
+                $('#logsContent').html(data.logs);
+                $('#logsContainer').removeClass('hidden');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
 </script>
 
 

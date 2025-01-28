@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Session;
 use App\Jobs\ProcessSentenceBatchJob;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Bus;
-
+use Illuminate\Support\Facades\File;
 
 
 
@@ -85,6 +85,20 @@ class SentenceController extends Controller
 
         return response()->json(['progress' => $progress]);
     }
+
+    public function getLogs()
+    {
+        $logPath = storage_path('logs/sentence_jobs.log');
+
+        if (File::exists($logPath)) {
+            $logs = File::get($logPath);
+            return response()->json(['logs' => nl2br($logs)]);
+        }
+
+        return response()->json(['message' => 'Логи отсутствуют.']);
+    }
+
+
     public function getSentence()
     {
         $sentence = null;

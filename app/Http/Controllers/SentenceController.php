@@ -13,6 +13,8 @@ use App\Jobs\ProcessSentenceBatchJob;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+
 
 
 

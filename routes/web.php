@@ -18,9 +18,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/upload', [SentenceController::class, 'upload']);
-    Route::get('/upload-progress', [SentenceController::class, 'progress'])->name('sentences.progress');
-
 
     Route::post('/upload', [SentenceController::class, 'upload'])->name('sentences.upload');
     Route::get('/logs/view', [SentenceController::class, 'getLogs'])->name('logs.view');

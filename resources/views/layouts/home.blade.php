@@ -52,32 +52,7 @@
         });
     });
 
-
 </script>
-
-
-<script>
-    let intervalId;
-
-    function checkProgress() {
-        fetch("{{ route('sentences.progress') }}")
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('progress-bar').style.width = data.progress + '%';
-                document.getElementById('progress-text').innerText = data.progress + '%';
-
-                if (data.progress >= 100) {
-                    clearInterval(intervalId);
-                    alert('Загрузка завершена!');
-                }
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        intervalId = setInterval(checkProgress, 1000);
-    });
-</script>
-
 
 </body>
 </html>

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->smallInteger('status')->default(0)->nullable();
             $table->integer('price');
             $table->foreignId('locked_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->bigInteger('sentence_id')->unsigned();
+            $table->bigInteger('sentence_id')->unsigned()->nullable();
 
             $table->timestamps();
         });

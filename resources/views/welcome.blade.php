@@ -40,17 +40,17 @@
                 <div>
                     В базе <strong class="text-green-900 focus:text-red-600 ...">1млн</strong> предложений!
                 </div>
-                <div class="flex flex-col items-center">
-                    <form action="{{route('sentences.delete')}}" method="post">
-                        @csrf
-                        @method('delete')
-                        <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-                            <img src="{{asset('img/icons/delete.svg')}}" alt="" style="width: 20px; height: 20px">
-                        </button>
-                    </form>
-                    <span style="color: rgb(26 86 219)">Очистить</span>
+{{--                <div class="flex flex-col items-center">--}}
+{{--                    <form action="{{route('sentences.delete')}}" method="post">--}}
+{{--                        @csrf--}}
+{{--                        @method('delete')--}}
+{{--                        <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">--}}
+{{--                            <img src="{{asset('img/icons/delete.svg')}}" alt="" style="width: 20px; height: 20px">--}}
+{{--                        </button>--}}
+{{--                    </form>--}}
+{{--                    <span style="color: rgb(26 86 219)">Очистить</span>--}}
 
-                </div>
+{{--                </div>--}}
             </div>
 
             <div class="bg-white p-6 rounded shadow-md  w-1/3 mx-8 flex justify-between items-center">

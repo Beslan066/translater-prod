@@ -3,35 +3,37 @@
 @section('content')
 
     @if(auth()->user()->role == 1)
-        @if($sentences->count() == 0)
-            <div class="container mx-auto p-6">
-                <h2 class="text-3xl font-extrabold dark:text-white py-4">Загрузите файл корпуса и предложения отобразятся на странице</h2>
-                <form id="uploadForm" action="{{ route('sentences.upload') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="file" class="block text-gray-700 font-bold mb-2">Выберите файл</label>
-                        <input type="file" name="file" class="form-control w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Загрузить
-                    </button>
-                </form>
-            </div>
-
-            <div class="my-4">
-                <button id="viewLogsButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    Посмотреть логи
-                </button>
-                <div id="logsContainer" class="mt-4 p-4 bg-gray-100 rounded hidden">
-                    <pre id="logsContent"></pre>
+        @if(isset($sentences))
+            @if($sentences->count() == 0)
+                <div class="container mx-auto p-6">
+                    <h2 class="text-3xl font-extrabold dark:text-white py-4">Загрузите файл корпуса и предложения отобразятся на странице</h2>
+                    <form id="uploadForm" action="{{ route('sentences.upload') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="file" class="block text-gray-700 font-bold mb-2">Выберите файл</label>
+                            <input type="file" name="file" class="form-control w-full px-3 py-2 border rounded" required>
+                        </div>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Загрузить
+                        </button>
+                    </form>
                 </div>
-            </div>
+
+                <div class="my-4">
+                    <button id="viewLogsButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Посмотреть логи
+                    </button>
+                    <div id="logsContainer" class="mt-4 p-4 bg-gray-100 rounded hidden">
+                        <pre id="logsContent"></pre>
+                    </div>
+                </div>
 
 
-            <div class="progress">
-                <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
-            </div>
-            <p id="progress-text">0%</p>
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <p id="progress-text">0%</p>
+            @endif
         @endif
 
 

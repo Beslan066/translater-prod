@@ -151,7 +151,7 @@ class SentenceController extends Controller
             });
         }
 
-        $sentencesTranslate = Sentence::query()->with(['translations', 'author'])->where('status', 1)->orderBy('id', 'desc')->paginate(10);
+        $sentencesTranslate = Sentence::query()->with(['translations', 'author'])->where('status', 1)->orderBy('created_at', 'asc')->paginate(10);
         $users = User::query()->where('role', 3)->get();
 
 

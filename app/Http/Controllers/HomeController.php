@@ -13,8 +13,8 @@ class HomeController extends Controller
     public function index() {
 
 
-	$sentencesTranslate = Sentence::with(['translations', 'author']) ->where('status', 1) ->orderBy('id', 'desc') ->paginate(30); 
-	$sentencesTranslateCompleted = Sentence::query()->where('status', 2)->orderBy('id', 'desc')->get();
+	$sentencesTranslate = Sentence::with(['translations', 'author']) ->where('status', 1) ->orderBy('created_at', 'asc') ->paginate(30); 
+	$sentencesTranslateCompleted = Sentence::query()->where('status', 2)->orderBy('created_at', 'desc')->get();
 
     $sentencesTranslateCompletedCount = count($sentencesTranslateCompleted);
 

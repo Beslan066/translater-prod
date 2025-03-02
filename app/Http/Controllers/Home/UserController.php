@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateUserRoleRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\User\UpdateUserRequest;
+use Illuminate\Support\Facades\Hash;
+
 
 use Illuminate\Support\Facades\DB;
 
@@ -60,6 +63,21 @@ class UserController extends Controller
         $user->update($data);
 
         return redirect()->route('users.index')->with('success', 'Роль пользователя успешно обновлена.');
+    }
+
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $data = $request->validated();
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('users.index')->with('success', 'Данные пользователя обновлены.');
     }
 
     public function deleteUser(User $user)

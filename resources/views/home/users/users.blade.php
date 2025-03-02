@@ -55,9 +55,11 @@
                             @if(auth()->user()->role === 1)
                                 <td class="px-6 py-4 flex items-center">
                                     @if($user->role !== 1)
-                                        <button type="button" class="open-modal mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none" data-userid="{{$user->id}}">
-                                            Изменить роль
-                                        </button>
+                                        <a href="{{ route('users.edit', $user->id) }}"
+                                           class="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
+                                            Изменить
+                                        </a>
+
                                         <form action="{{route('user.delete', $user->id)}}" method="post">
                                             @csrf
                                             @method('delete')

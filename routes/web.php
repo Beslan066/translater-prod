@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/logs/view', [SentenceController::class, 'getLogs'])->name('logs.view');
 
     Route::post('/sentences/{sentence}/approve', [SentenceController::class, 'approveTranslation'])->name('sentences.approve');
-    Route::post('/sentences/{sentence}/reject', [SentenceController::class, 'rejectTranslation'])->name('sentences.reject');
+    Route::post('/sentences/{sentence}/delay', [SentenceController::class, 'delayTranslation'])->name('sentences.delay');    Route::post('/sentences/{sentence}/reject', [SentenceController::class, 'rejectTranslation'])->name('sentences.reject');
     Route::get('/sentences/moderating', [SentenceController::class, 'moderate'])->name('sentence.moderate');
     Route::get('/sentences/completed', [HomeController::class, 'completedSentences'])->name('sentence.completed');
     Route::get('/sentences/district', [HomeController::class, 'districtSentences'])->name('sentence.district');

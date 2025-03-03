@@ -17,7 +17,9 @@ class Sentence extends Model
       'status',
       'author',
       'locked_by',
-      'price'
+      'price',
+      'delayed'
+
     ];
 
     public  function author() {

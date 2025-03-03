@@ -212,6 +212,21 @@ class SentenceController extends Controller
         return redirect()->route('translate')->with('error', 'Failed to save translation.');
     }
 
+    public function delayTranslation(Sentence $sentence)
+    {
+        if ($sentence->status == 1) {
+            // Повторяем логику подтверждения + delayed=1
+            $sentence->update([
+                'status' => 2,  // статус как при подтверждении
+                'delayed' => 1  // помечаем как отложенное
+            ]);
+
+            return redirect()->route('translate')->with('success', 'Предложение отложено');
+        }
+
+        return redirect()->route('translate')->with('error', 'Не удалось отложить предложение');
+    }
+
     public function editTranslation(Request $request, Translate $translation)
     {
         $request->validate([
@@ -235,7 +250,10 @@ class SentenceController extends Controller
         // Проверяем, что статус предложения равен 1
         if ($sentence->status == 1) {
             // Обновляем статус на 2
-            $sentence->update(['status' => 2]);
+            $sentence->update([
+                'status' => 2,
+                'delayed' => 0
+            ]);
 
             return redirect()->route('translate')->with('success', 'Translation approved successfully.');
         }
@@ -251,7 +269,11 @@ class SentenceController extends Controller
             Translate::where('sentence_id', $sentence->id)->delete();
 
             // Обновляем статус на 0
-            $sentence->update(['status' => 0, 'locked_by' => null]);
+            $sentence->update([
+                'status' => 0,
+                'locked_by' => null,
+                'delayed' => 0
+            ]);
 
             return redirect()->route('translate')->with('success', 'Translation rejected successfully.');
         }

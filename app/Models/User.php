@@ -47,6 +47,8 @@ class User extends Authenticatable
         'role',
     ];
 
+    protected $dates = ['last_seen'];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -71,8 +73,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function translations()
-    {
-        return $this->hasMany(Translate::class, 'user_id', 'id');
-    }
+        public function translations()
+        {
+            return $this->hasMany(Translate::class, 'user_id', 'id');
+        }
 }

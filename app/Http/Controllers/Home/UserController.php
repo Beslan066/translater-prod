@@ -16,32 +16,39 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Получение пользователей с их переводами и предложениями со статусом = 2
         $users = User::query()
             ->with(['translations.sentence' => function ($query) {
-                $query->where('status', 2); // Учитываем только предложения со статусом = 2
+                $query->where('status', 2);
             }])
+            ->withCount([
+                'translations as translations_status2_count' => function ($query) {
+                    $query->whereHas('sentence', function ($q) {
+                        $q->where('status', 2);
+                    });
+                },
+                'translations as translations_status1_count' => function ($query) {
+                    $query->whereHas('sentence', function ($q) {
+                        $q->where('status', 1);
+                    });
+                }
+            ])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
-        // Список ролей пользователей
         $roles = User::getRoles();
 
-        // Расчет заработков пользователей
-        $users = $users->map(function ($user) {
-            $user->total_earnings = $user->translations
-                ->map(function ($translation) {
-                    return $translation->sentence ? $translation->sentence->price : 0;
-                })
-                ->sum();
+        // Добавляем проверку онлайн-статуса
+        $users->each(function ($user) {
+            $user->is_online = $user->last_seen
+                && now()->diffInMinutes($user->last_seen) < 5;
 
-            return $user;
+            $user->total_earnings = $user->translations->sum(function ($translation) {
+                return $translation->sentence->price ?? 0;
+            });
         });
 
         return view('home.users.users', compact('users', 'roles'));
     }
-
-
 
     public function edit(User $user)
     {

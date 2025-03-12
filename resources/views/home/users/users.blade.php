@@ -12,6 +12,9 @@
                             Идентификатор
                         </th>
                         <th scope="col" class="px-6 py-3">
+                            Онлайн
+                        </th>
+                        <th scope="col" class="px-6 py-3">
                             Имя
                         </th>
                         <th scope="col" class="px-6 py-3">
@@ -22,6 +25,12 @@
                         </th>
                         <th scope="col" class="px-6 py-3">
                             Заработано
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Переведено
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            На проверке
                         </th>
                         @if(auth()->user()->role === 1)
                             <th scope="col" class="px-6 py-3">
@@ -36,6 +45,14 @@
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                 {{$user->id}}
                             </th>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="h-3 w-3 rounded-full @if($user->is_online) bg-green-500 @else bg-gray-400 @endif"></div>
+                                    <span class="ml-2">
+                                        {{ $user->is_online ? 'Online' : 'Offline' }}
+                                    </span>
+                                </div>
+                            </td>
                             <td class="px-6 py-4">
                                 {{$user->name}}
                             </td>
@@ -52,6 +69,13 @@
                                 </td>
                             @endif
 
+                            <td class="px-6 py-4">
+                                {{ $user->translations_status2_count }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ $user->translations_status1_count }}
+                            </td>
+
                             @if(auth()->user()->role === 1)
                                 <td class="px-6 py-4 flex items-center">
                                     @if($user->role !== 1)
@@ -63,7 +87,10 @@
                                         <form action="{{route('user.delete', $user->id)}}" method="post">
                                             @csrf
                                             @method('delete')
-                                            <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Удалить</button>
+                                            <button type="submit"
+                                                    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
+                                                Удалить
+                                            </button>
                                         </form>
                                     @endif
 
@@ -73,17 +100,29 @@
                     @endforeach
                     </tbody>
                 </table>
+
+                <div>
+                    {{$users->links()}}
+                </div>
             </div>
 
         </div>
 
 
         <!-- Modal -->
-        <div id="roleModal" style="justify-content: center; align-items: center; height: 100%" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
+        <div id="roleModal" style="justify-content: center; align-items: center; height: 100%" tabindex="-1"
+             class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
             <div class="relative w-full h-full max-w-md md:h-auto">
                 <div class="relative bg-white rounded-lg shadow">
-                    <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="roleModal">
-                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <button type="button"
+                            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+                            data-modal-hide="roleModal">
+                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clip-rule="evenodd"></path>
+                        </svg>
                         <span class="sr-only">Close modal</span>
                     </button>
                     <div class="px-6 py-6 lg:px-8">
@@ -92,14 +131,19 @@
                             @csrf
                             @method('patch')
                             <div>
-                                <label for="role" class="block mb-2 text-sm font-medium text-gray-900">Выберите роль</label>
-                                <select id="role" name="role" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <label for="role" class="block mb-2 text-sm font-medium text-gray-900">Выберите
+                                    роль</label>
+                                <select id="role" name="role"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                     @foreach($roles as $id => $role)
                                         <option value="{{$id}}">{{$role}}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Сохранить изменения</button>
+                            <button type="submit"
+                                    class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                Сохранить изменения
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -146,7 +190,6 @@
                 });
             });
         </script>
-
 
     @endif
 @endsection

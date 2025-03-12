@@ -97,6 +97,7 @@
                                             @csrf
                                             @method('delete')
                                             <button type="submit"
+                                                    onclick="return confirm('Вы уверены, что хотите удалить пользователя?')"
                                                     class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
                                                 Удалить
                                             </button>
@@ -110,7 +111,7 @@
                     </tbody>
                 </table>
 
-                <div>
+                <div class="mt-2">
                     {{$users->links()}}
                 </div>
             </div>

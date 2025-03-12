@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
     Route::delete('/users/{user}', [UserController::class, 'deleteUser'])->name('user.delete');
+    Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
 
 
 

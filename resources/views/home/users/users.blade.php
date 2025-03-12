@@ -3,7 +3,16 @@
 @section('content')
     @if(isset($users))
         <div class="container mx-auto p-6 flex flex-col justify-between mx-8">
-            <h3 class="mb-8 px-6">Всего пользователей {{$users->count()}}:</h3>
+            <div class="flex justify-between items-center">
+                <h3 class="mb-8 px-6">Всего пользователей {{$users->count()}}:</h3>
+                @if(auth()->user()->role === 1)
+                        <div class="mb-4 mr-6">
+                            <a href="{{ route('users.export') }}" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">
+                                Экспорт в CSV
+                            </a>
+                        </div>
+                    @endif
+            </div>
             <div class="relative overflow-x-auto px-6 ">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -105,8 +114,9 @@
                     {{$users->links()}}
                 </div>
             </div>
-
         </div>
+
+
 
 
         <!-- Modal -->

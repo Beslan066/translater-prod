@@ -18,6 +18,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        // Основной запрос с подсчетом всех необходимых данных
         $query = User::query()
             ->with(['translations.sentence'])
             ->withCount([
@@ -32,12 +33,13 @@ class UserController extends Controller
                     });
                 }
             ])
-            ->addSelect([
-                'total_earnings' => Translate::selectRaw('COALESCE(SUM(sentences.price), 0)')
-                    ->join('sentences', 'translates.sentence_id', '=', 'sentences.id')
-                    ->whereColumn('translates.user_id', 'users.id')
-                    ->where('sentences.status', 2)
-                    ->groupBy('translates.user_id')
+            ->select([
+                'users.*',
+                DB::raw('(SELECT COALESCE(SUM(sentences.price), 0) 
+                    FROM translates 
+                    JOIN sentences ON translates.sentence_id = sentences.id 
+                    WHERE translates.user_id = users.id 
+                    AND sentences.status = 2) as total_earnings')
             ]);
 
         // Фильтрация по роли
@@ -45,28 +47,25 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        // Сортировка
-        if ($request->filled('sort')) {
-            switch($request->sort) {
-                case 'earnings':
-                    $query->orderBy('total_earnings', 'desc');
-                    break;
-                case 'translated':
-                    $query->orderBy('translations_status2_count', 'desc');
-                    break;
-                case 'on_review':
-                    $query->orderBy('translations_status1_count', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-            }
-        } else {
-            $query->orderBy('created_at', 'desc');
+        // Глобальная сортировка
+        switch ($request->input('sort', '')) {
+            case 'earnings':
+                $query->orderBy('total_earnings', 'desc');
+                break;
+            case 'translated':
+                $query->orderBy('translations_status2_count', 'desc');
+                break;
+            case 'on_review':
+                $query->orderBy('translations_status1_count', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
         }
 
-        $users = $query->paginate(10);
+        // Пагинация с сохранением параметров
+        $users = $query->paginate(10)->appends(request()->query());
 
-        // Онлайн статус
+        // Расчет онлайн статуса
         $users->each(function($user) {
             $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
         });

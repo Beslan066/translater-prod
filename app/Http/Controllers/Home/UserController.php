@@ -18,9 +18,10 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Основной запрос с подсчетом всех необходимых данных
         $query = User::query()
-            ->with(['translations.sentence'])
+            ->with(['translations.sentence' => function($query) {
+                $query->where('status', 2);
+            }])
             ->withCount([
                 'translations as translations_status2_count' => function($query) {
                     $query->whereHas('sentence', function($q) {
@@ -32,15 +33,15 @@ class UserController extends Controller
                         $q->where('status', 1);
                     });
                 }
-            ])
-            ->select([
-                'users.*',
-                DB::raw('(SELECT COALESCE(SUM(sentences.price), 0) 
-                    FROM translates 
-                    JOIN sentences ON translates.sentence_id = sentences.id 
-                    WHERE translates.user_id = users.id 
-                    AND sentences.status = 2) as total_earnings')
             ]);
+
+        // Расчет заработка через подзапрос
+        $query->addSelect([
+            'total_earnings' => Translate::selectRaw('COALESCE(SUM(sentences.price), 0)')
+                ->join('sentences', 'translates.sentence_id', '=', 'sentences.id')
+                ->whereColumn('translates.user_id', 'users.id')
+                ->where('sentences.status', 2)
+        ]);
 
         // Фильтрация по роли
         if ($request->filled('role')) {
@@ -48,7 +49,7 @@ class UserController extends Controller
         }
 
         // Глобальная сортировка
-        switch ($request->input('sort', '')) {
+        switch ($request->input('sort')) {
             case 'earnings':
                 $query->orderBy('total_earnings', 'desc');
                 break;
@@ -62,18 +63,24 @@ class UserController extends Controller
                 $query->orderBy('created_at', 'desc');
         }
 
-        // Пагинация с сохранением параметров
-        $users = $query->paginate(10)->appends(request()->query());
+        $users = $query->paginate(10);
 
-        // Расчет онлайн статуса
+        // Добавляем онлайн статус
         $users->each(function($user) {
             $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+
+            // Дополнительно считаем заработок для случаев, если подзапрос не сработал
+            if (!isset($user->total_earnings)) {
+                $user->total_earnings = $user->translations
+                    ->where('sentence.status', 2)
+                    ->sum('sentence.price');
+            }
         });
 
         return view('home.users.users', [
             'users' => $users,
             'roles' => User::getRoles(),
-            'currentSort' => $request->input('sort', '')
+            'filters' => $request->all()
         ]);
     }
 

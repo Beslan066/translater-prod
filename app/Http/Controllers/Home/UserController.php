@@ -22,10 +22,10 @@ class UserController extends Controller
     $query = User::query()
         ->with(['translations.sentence'])
         ->withCount([
-            'translations as approved_translations_count' => function($query) {
+            'translations as translations_status2_count' => function($query) {
                 $query->whereHas('sentence', fn($q) => $q->where('status', 2));
             },
-            'translations as pending_translations_count' => function($query) {
+            'translations as translations_status1_count' => function($query) {
                 $query->whereHas('sentence', fn($q) => $q->where('status', 1));
             }
         ])
@@ -45,17 +45,17 @@ class UserController extends Controller
 
     // Сортировка
     $sortField = $request->input('sort', 'created_at');
-    $sortDirection = 'desc'; // Всегда по убыванию для критериев
+    $sortDirection = 'desc'; // Всегда по убыванию
     
     switch ($sortField) {
         case 'earnings':
             $query->orderBy('total_earnings', $sortDirection);
             break;
         case 'translated':
-            $query->orderBy('approved_translations_count', $sortDirection);
+            $query->orderBy('translations_status2_count', $sortDirection);
             break;
         case 'on_review':
-            $query->orderBy('pending_translations_count', $sortDirection);
+            $query->orderBy('translations_status1_count', $sortDirection);
             break;
         default:
             $query->orderBy('created_at', 'desc');
@@ -64,7 +64,9 @@ class UserController extends Controller
     $users = $query->paginate(10);
 
     // Вычисляем онлайн статус
-    $users->each(fn($user) => $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5);
+    $users->each(function($user) {
+        $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+    });
 
     return view('home.users.users', [
         'users' => $users,

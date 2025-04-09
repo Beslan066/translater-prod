@@ -10,10 +10,9 @@
                         <!-- Кнопка фильтра -->
                         <div class="relative">
                             <button id="filterButton" class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
-                            <img src="{{asset('img/icons/filter.svg')}}" alt="">
+                                <img src="{{asset('img/icons/filter.svg')}}" alt="">
                             </button>
-                            
-                            <!-- Выпадающее меню фильтрации -->
+
                             <div id="filterDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
                                 <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
                                     <div>
@@ -25,17 +24,17 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Сортировка</label>
                                         <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                                            <option value="">По умолчанию</option>
-                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>Заработок</option>
-                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>Переведено</option>
-                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>На проверке</option>
+                                            <option value="">По умолчанию (новые сверху)</option>
+                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>По заработку</option>
+                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>По переводам</option>
+                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>По проверке</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="flex space-x-2">
                                         <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
                                             Применить
@@ -47,7 +46,7 @@
                                 </form>
                             </div>
                         </div>
-                        
+
                         <!-- Иконка CSV -->
                         <a href="{{ route('users.export') }}" class="text-gray-700 hover:text-gray-900 rounded-full hover:bg-gray-100" title="Экспорт в CSV">
                             <img src="{{asset('img/icons/csv.svg')}}" alt="Экспорт в CSV">
@@ -55,9 +54,9 @@
                     </div>
                 @endif
             </div>
-            
-            <!-- Таблица остается без изменений -->
-            <div class="relative overflow-x-auto px-6 ">
+
+            <!-- Таблица в оригинальном виде -->
+            <div class="relative overflow-x-auto px-6">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
@@ -110,25 +109,20 @@
                                 {{$user->name}}
                             </td>
                             <td class="px-6 py-4">
-                                {{$user->created_at}}
+                                {{$user->created_at->format('d.m.Y H:i')}}
                             </td>
                             <td class="px-6 py-4">
                                 {{\App\Models\User::getRoleName($user->role)}}
                             </td>
-
-                            @if(isset($user->total_earnings))
-                                <td class="px-6 py-4">
-                                    {{$user->total_earnings}}
-                                </td>
-                            @endif
-
+                            <td class="px-6 py-4">
+                                {{ number_format($user->total_earnings ?? 0, 2) }} ₽
+                            </td>
                             <td class="px-6 py-4">
                                 {{ $user->translations_status2_count }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $user->translations_status1_count }}
                             </td>
-
                             @if(auth()->user()->role === 1)
                                 <td class="px-6 py-4 flex items-center">
                                     @if($user->role !== 1)
@@ -147,7 +141,6 @@
                                             </button>
                                         </form>
                                     @endif
-
                                 </td>
                             @endif
                         </tr>
@@ -160,7 +153,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Modal для изменения роли -->
         <div id="roleModal" style="justify-content: center; align-items: center; height: 100%" tabindex="-1"
              class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
@@ -203,20 +195,20 @@
         </div>
 
         <script>
-             document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
                 // Управление фильтром
                 const filterButton = document.getElementById('filterButton');
                 const filterDropdown = document.getElementById('filterDropdown');
-                
+
                 filterButton.addEventListener('click', function(e) {
                     e.stopPropagation();
                     filterDropdown.classList.toggle('hidden');
                 });
-                
+
                 document.addEventListener('click', function() {
                     filterDropdown.classList.add('hidden');
                 });
-                
+
                 filterDropdown.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateUserRoleRequest;
+use App\Models\Translate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -18,80 +19,59 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Основной запрос для получения пользователей
         $users = User::query()
-            ->with(['translations.sentence' => function ($query) {
-                $query->where('status', 2); // Загружаем только утвержденные переводы (status=2)
-            }])
+            ->with(['translations.sentence'])
             ->withCount([
-                // Счетчик подтвержденных переводов (status=2)
-                'translations as translations_status2_count' => function ($query) {
-                    $query->whereHas('sentence', function ($q) {
+                'translations as translations_status2_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
                         $q->where('status', 2);
                     });
                 },
-                // Счетчик переводов на проверке (status=1)
-                'translations as translations_status1_count' => function ($query) {
-                    $query->whereHas('sentence', function ($q) {
+                'translations as translations_status1_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
                         $q->where('status', 1);
                     });
                 }
             ])
-            // Фильтрация по роли, если указана
-            ->when($request->filled('role'), function ($query) use ($request) {
+            ->addSelect([
+                'total_earnings' => Translate::selectRaw('COALESCE(SUM(sentences.price), 0)')
+                    ->join('sentences', 'translates.sentence_id', '=', 'sentences.id')
+                    ->whereColumn('translates.user_id', 'users.id')
+                    ->where('sentences.status', 2)
+                    ->groupBy('translates.user_id')
+            ])
+            ->when($request->filled('role'), function($query) use ($request) {
                 $query->where('role', $request->role);
-            })
-            // Сортировка в зависимости от выбранного параметра
-            ->when($request->filled('sort'), function ($query) use ($request) {
-                switch ($request->sort) {
-                    case 'earnings':
-                        // Сортировка по заработку будет применена после загрузки
-                        break;
-                    case 'translated':
-                        $query->orderBy('translations_status2_count', $request->get('order', 'desc'));
-                        break;
-                    case 'on_review':
-                        $query->orderBy('translations_status1_count', $request->get('order', 'desc'));
-                        break;
-                    case 'online':
-                        $query->orderByRaw('last_seen > NOW() - INTERVAL 5 MINUTE DESC');
-                        break;
-                    default:
-                        $query->orderBy('created_at', 'desc');
-                }
-            }, function ($query) {
-                $query->orderBy('created_at', 'desc'); // Сортировка по умолчанию
-            })
-            ->paginate(10);
-    
-        // Добавляем дополнительные вычисляемые поля
-        $users->each(function ($user) {
-            // Проверка онлайн-статуса (был онлайн менее 5 минут назад)
-            $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
-            
-            // Расчет общего заработка
-            $user->total_earnings = $user->translations->sum(function ($translation) {
-                return $translation->sentence->price ?? 0;
             });
-        });
-    
-        // Дополнительная сортировка по заработку (после загрузки данных)
-        if ($request->get('sort') === 'earnings') {
-            $order = $request->get('order', 'desc');
-            $sorted = $order === 'asc' 
-                ? $users->getCollection()->sortBy('total_earnings')
-                : $users->getCollection()->sortByDesc('total_earnings');
-            
-            $users->setCollection($sorted);
+
+        // Исправленная логика сортировки с правильными именами столбцов
+        if ($request->filled('sort')) {
+            switch($request->sort) {
+                case 'earnings':
+                    $users->orderBy('total_earnings', 'asc');
+                    break;
+                case 'translated':
+                    $users->orderBy('translations_status2_count', 'desc');
+                    break;
+                case 'on_review':
+                    $users->orderBy('translations_status1_count', 'desc');
+                    break;
+                default:
+                    $users->orderBy('created_at', 'desc');
+            }
+        } else {
+            $users->orderBy('created_at', 'desc');
         }
-    
-        $roles = User::getRoles(); // Получаем все возможные роли
-    
-        return view('home.users.users', [
-            'users' => $users,
-            'roles' => $roles,
-            'filters' => $request->all() // Передаем параметры фильтрации в представление
-        ]);
+
+        $users = $users->paginate(10);
+
+        $users->each(function($user) {
+            $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+        });
+
+        $roles = User::getRoles();
+
+        return view('home.users.users', compact('users', 'roles'));
     }
 
     public function edit(User $user)

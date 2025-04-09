@@ -17,7 +17,7 @@
                                 <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Роль</label>
-                                        <<select name="role">
+                                        <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">>
         <option value="">Все роли</option>
         @foreach($roles as $id => $name)
             <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>
@@ -29,7 +29,7 @@
 
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Сортировка</label>
-                                        <select name="sort">
+                                        <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
         <option value="">Новые сначала</option>
         <option value="earnings" {{ $currentSort == 'earnings' ? 'selected' : '' }}>
             По заработку (сначала больше)

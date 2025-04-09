@@ -96,17 +96,6 @@ class SentenceController extends Controller
 
 
 
-
-    public function progress()
-    {
-        $total = Cache::get('total_sentences', 0);
-        $processed = Cache::get('processed_sentences', 0);
-
-        $progress = $total > 0 ? round(($processed / $total) * 100) : 0;
-
-        return response()->json(['progress' => $progress]);
-    }
-
     public function getLogs()
     {
         $logPath = storage_path('logs/sentence_jobs.log');

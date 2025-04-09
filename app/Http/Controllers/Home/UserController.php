@@ -16,40 +16,82 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Основной запрос для получения пользователей
         $users = User::query()
             ->with(['translations.sentence' => function ($query) {
-                $query->where('status', 2);
+                $query->where('status', 2); // Загружаем только утвержденные переводы (status=2)
             }])
             ->withCount([
+                // Счетчик подтвержденных переводов (status=2)
                 'translations as translations_status2_count' => function ($query) {
                     $query->whereHas('sentence', function ($q) {
                         $q->where('status', 2);
                     });
                 },
+                // Счетчик переводов на проверке (status=1)
                 'translations as translations_status1_count' => function ($query) {
                     $query->whereHas('sentence', function ($q) {
                         $q->where('status', 1);
                     });
                 }
             ])
-            ->orderBy('created_at', 'desc')
+            // Фильтрация по роли, если указана
+            ->when($request->filled('role'), function ($query) use ($request) {
+                $query->where('role', $request->role);
+            })
+            // Сортировка в зависимости от выбранного параметра
+            ->when($request->filled('sort'), function ($query) use ($request) {
+                switch ($request->sort) {
+                    case 'earnings':
+                        // Сортировка по заработку будет применена после загрузки
+                        break;
+                    case 'translated':
+                        $query->orderBy('translations_status2_count', $request->get('order', 'desc'));
+                        break;
+                    case 'on_review':
+                        $query->orderBy('translations_status1_count', $request->get('order', 'desc'));
+                        break;
+                    case 'online':
+                        $query->orderByRaw('last_seen > NOW() - INTERVAL 5 MINUTE DESC');
+                        break;
+                    default:
+                        $query->orderBy('created_at', 'desc');
+                }
+            }, function ($query) {
+                $query->orderBy('created_at', 'desc'); // Сортировка по умолчанию
+            })
             ->paginate(10);
-
-        $roles = User::getRoles();
-
-        // Добавляем проверку онлайн-статуса
+    
+        // Добавляем дополнительные вычисляемые поля
         $users->each(function ($user) {
-            $user->is_online = $user->last_seen
-                && now()->diffInMinutes($user->last_seen) < 5;
-
+            // Проверка онлайн-статуса (был онлайн менее 5 минут назад)
+            $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+            
+            // Расчет общего заработка
             $user->total_earnings = $user->translations->sum(function ($translation) {
                 return $translation->sentence->price ?? 0;
             });
         });
-
-        return view('home.users.users', compact('users', 'roles'));
+    
+        // Дополнительная сортировка по заработку (после загрузки данных)
+        if ($request->get('sort') === 'earnings') {
+            $order = $request->get('order', 'desc');
+            $sorted = $order === 'asc' 
+                ? $users->getCollection()->sortBy('total_earnings')
+                : $users->getCollection()->sortByDesc('total_earnings');
+            
+            $users->setCollection($sorted);
+        }
+    
+        $roles = User::getRoles(); // Получаем все возможные роли
+    
+        return view('home.users.users', [
+            'users' => $users,
+            'roles' => $roles,
+            'filters' => $request->all() // Передаем параметры фильтрации в представление
+        ]);
     }
 
     public function edit(User $user)

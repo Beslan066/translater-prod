@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=csv" />
     <link rel="stylesheet" href="css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -56,27 +57,6 @@
 </script>
 
 
-<script>
-    let intervalId;
-
-    function checkProgress() {
-        fetch("{{ route('sentences.progress') }}")
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('progress-bar').style.width = data.progress + '%';
-                document.getElementById('progress-text').innerText = data.progress + '%';
-
-                if (data.progress >= 100) {
-                    clearInterval(intervalId);
-                    alert('Загрузка завершена!');
-                }
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        intervalId = setInterval(checkProgress, 1000);
-    });
-</script>
 
 
 </body>

@@ -4,15 +4,59 @@
     @if(isset($users))
         <div class="container mx-auto p-6 flex flex-col justify-between mx-8">
             <div class="flex justify-between items-center">
-                <h3 class="mb-8 px-6">Всего пользователей {{$users->count()}}:</h3>
+                <h3 class="mb-8 px-6">Всего пользователей {{$users->total()}}:</h3>
                 @if(auth()->user()->role === 1)
-                        <div class="mb-4 mr-6">
-                            <a href="{{ route('users.export') }}" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">
-                                Экспорт в CSV
-                            </a>
+                    <div class="mb-4 mr-6 flex items-center space-x-4">
+                        <!-- Кнопка фильтра -->
+                        <div class="relative">
+                            <button id="filterButton" class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+                            <img src="{{asset('img/icons/filter.svg')}}" alt="">
+                            </button>
+                            
+                            <!-- Выпадающее меню фильтрации -->
+                            <div id="filterDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
+                                <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Роль</label>
+                                        <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                            <option value="">Все роли</option>
+                                            @foreach($roles as $id => $name)
+                                                <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Сортировка</label>
+                                        <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                            <option value="">По умолчанию</option>
+                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>Заработок</option>
+                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>Переведено</option>
+                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>На проверке</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="flex space-x-2">
+                                        <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                            Применить
+                                        </button>
+                                        <a href="{{ route('users.index') }}" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center">
+                                            Сбросить
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    @endif
+                        
+                        <!-- Иконка CSV -->
+                        <a href="{{ route('users.export') }}" class="text-gray-700 hover:text-gray-900 rounded-full hover:bg-gray-100" title="Экспорт в CSV">
+                            <img src="{{asset('img/icons/csv.svg')}}" alt="Экспорт в CSV">
+                        </a>
+                    </div>
+                @endif
             </div>
+            
+            <!-- Таблица остается без изменений -->
             <div class="relative overflow-x-auto px-6 ">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -117,10 +161,7 @@
             </div>
         </div>
 
-
-
-
-        <!-- Modal -->
+        <!-- Modal для изменения роли -->
         <div id="roleModal" style="justify-content: center; align-items: center; height: 100%" tabindex="-1"
              class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
             <div class="relative w-full h-full max-w-md md:h-auto">
@@ -162,7 +203,25 @@
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+             document.addEventListener('DOMContentLoaded', function () {
+                // Управление фильтром
+                const filterButton = document.getElementById('filterButton');
+                const filterDropdown = document.getElementById('filterDropdown');
+                
+                filterButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    filterDropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function() {
+                    filterDropdown.classList.add('hidden');
+                });
+                
+                filterDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+                
+                // Модальное окно для изменения роли
                 const roleModal = document.getElementById('roleModal');
                 const roleForm = document.getElementById('roleForm');
                 const modalButtons = document.querySelectorAll('.open-modal');
@@ -174,7 +233,7 @@
                         event.preventDefault();
                         const userId = this.dataset.userid;
                         const route = `/users/${userId}/role`;
-                        roleForm.action = route; // Установка роута формы
+                        roleForm.action = route;
                         roleModal.classList.remove('hidden');
                         roleModal.classList.add('flex');
                     });
@@ -201,6 +260,5 @@
                 });
             });
         </script>
-
     @endif
 @endsection

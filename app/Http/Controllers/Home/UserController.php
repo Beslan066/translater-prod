@@ -11,69 +11,72 @@ use App\Http\Requests\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
 
 
-
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
     public function index(Request $request)
-{
-    $query = User::query()
-        ->with(['translations.sentence'])
-        ->withCount([
-            'translations as translations_status2_count' => function($query) {
-                $query->whereHas('sentence', fn($q) => $q->where('status', 2));
-            },
-            'translations as translations_status1_count' => function($query) {
-                $query->whereHas('sentence', fn($q) => $q->where('status', 1));
+    {
+        $query = User::query()
+            ->with(['translations.sentence'])
+            ->withCount([
+                'translations as translations_status2_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
+                        $q->where('status', 2);
+                    });
+                },
+                'translations as translations_status1_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
+                        $q->where('status', 1);
+                    });
+                }
+            ])
+            ->addSelect([
+                'total_earnings' => Translate::selectRaw('COALESCE(SUM(sentences.price), 0)')
+                    ->join('sentences', 'translates.sentence_id', '=', 'sentences.id')
+                    ->whereColumn('translates.user_id', 'users.id')
+                    ->where('sentences.status', 2)
+                    ->groupBy('translates.user_id')
+            ]);
+
+        // Фильтрация по роли
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Сортировка
+        if ($request->filled('sort')) {
+            switch($request->sort) {
+                case 'earnings':
+                    $query->orderBy('total_earnings', 'desc');
+                    break;
+                case 'translated':
+                    $query->orderBy('translations_status2_count', 'desc');
+                    break;
+                case 'on_review':
+                    $query->orderBy('translations_status1_count', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
             }
-        ])
-        ->select([
-            'users.*',
-            DB::raw('(SELECT COALESCE(SUM(sentences.price), 0) 
-                    FROM translates 
-                    JOIN sentences ON translates.sentence_id = sentences.id 
-                    WHERE translates.user_id = users.id 
-                    AND sentences.status = 2) as total_earnings')
-        ]);
-
-    // Фильтрация по роли
-    if ($request->filled('role')) {
-        $query->where('role', $request->role);
-    }
-
-    // Сортировка
-    $sortField = $request->input('sort', 'created_at');
-    $sortDirection = 'desc'; // Всегда по убыванию
-    
-    switch ($sortField) {
-        case 'earnings':
-            $query->orderBy('total_earnings', $sortDirection);
-            break;
-        case 'translated':
-            $query->orderBy('translations_status2_count', $sortDirection);
-            break;
-        case 'on_review':
-            $query->orderBy('translations_status1_count', $sortDirection);
-            break;
-        default:
+        } else {
             $query->orderBy('created_at', 'desc');
+        }
+
+        $users = $query->paginate(10);
+
+        // Онлайн статус
+        $users->each(function($user) {
+            $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+        });
+
+        return view('home.users.users', [
+            'users' => $users,
+            'roles' => User::getRoles(),
+            'currentSort' => $request->input('sort', '')
+        ]);
     }
-
-    $users = $query->paginate(10);
-
-    // Вычисляем онлайн статус
-    $users->each(function($user) {
-        $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
-    });
-
-    return view('home.users.users', [
-        'users' => $users,
-        'roles' => User::getRoles(),
-        'currentSort' => $sortField
-    ]);
-}
 
     public function edit(User $user)
     {

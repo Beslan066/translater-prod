@@ -9,43 +9,44 @@
                     <div class="mb-4 mr-6 flex items-center space-x-4">
                         <!-- Кнопка фильтра -->
                         <div class="relative">
-    <button id="filterButton" class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
-        <img src="{{asset('img/icons/filter.svg')}}" alt="">
-    </button>
-    
-    <div id="filterDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
-        <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Роль</label>
-                <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                    <option value="">Все роли</option>
-                    @foreach($roles as $id => $name)
-                        <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>{{ $name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Сортировка</label>
-                <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                    <option value="">По дате регистрации (новые сверху)</option>
-                    <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>По заработку</option>
-                    <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>По переводам</option>
-                    <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>По проверке</option>
-                </select>
-            </div>
-            
-            <div class="flex space-x-2">
-                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-                    Применить
-                </button>
-                <a href="{{ route('users.index') }}" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center">
-                    Сбросить
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
+                            <button id="filterButton" class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+                                <img src="{{asset('img/icons/filter.svg')}}" alt="">
+                            </button>
+
+                            <!-- Выпадающее меню фильтрации -->
+                            <div id="filterDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
+                                <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Роль</label>
+                                        <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                            <option value="">Все роли</option>
+                                            @foreach($roles as $id => $name)
+                                                <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Сортировка</label>
+                                        <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                            <option value="">По дате регистрации</option>
+                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>По заработку</option>
+                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>По переводам</option>
+                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>По проверке</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                            Применить
+                                        </button>
+                                        <a href="{{ route('users.index') }}" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center">
+                                            Сбросить
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
                         <!-- Иконка CSV -->
                         <a href="{{ route('users.export') }}" class="text-gray-700 hover:text-gray-900 rounded-full hover:bg-gray-100" title="Экспорт в CSV">
@@ -55,51 +56,57 @@
                 @endif
             </div>
 
-            <!-- Таблица в оригинальном виде -->
+            <!-- Таблица с сохранением ВСЕХ данных -->
             <div class="relative overflow-x-auto px-6">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-    <tr>
-        <th scope="col" class="px-6 py-3">ID</th>
-        <th scope="col" class="px-6 py-3">Онлайн</th>
-        <th scope="col" class="px-6 py-3">Имя</th>
-        <th scope="col" class="px-6 py-3">Зарегистрирован</th>
-        <th scope="col" class="px-6 py-3">Роль</th>
-        <th scope="col" class="px-6 py-3">
-            <div class="flex items-center">
-                Заработано
-                @if($currentSort == 'earnings')
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                @endif
-            </div>
-        </th>
-        <th scope="col" class="px-6 py-3">
-            <div class="flex items-center">
-                Переведено
-                @if($currentSort == 'translated')
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                @endif
-            </div>
-        </th>
-        <th scope="col" class="px-6 py-3">
-            <div class="flex items-center">
-                На проверке
-                @if($currentSort == 'on_review')
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                @endif
-            </div>
-        </th>
-        @if(auth()->user()->role === 1)
-            <th scope="col" class="px-6 py-3">Действие</th>
-        @endif
-    </tr>
-</thead>
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Идентификатор
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Онлайн
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Имя
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Зарегистрирован
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Роль
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Заработано
+                            @if(request('sort') == 'earnings')
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            @endif
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Переведено
+                            @if(request('sort') == 'translated')
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            @endif
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            На проверке
+                            @if(request('sort') == 'on_review')
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            @endif
+                        </th>
+                        @if(auth()->user()->role === 1)
+                            <th scope="col" class="px-6 py-3">
+                                Действие
+                            </th>
+                        @endif
+                    </tr>
+                    </thead>
                     <tbody>
                     @foreach($users as $user)
                         <tr class="bg-white border-b">
@@ -158,10 +165,11 @@
                 </table>
 
                 <div class="mt-2">
-                    {{$users->links()}}
+                    {{$users->appends(request()->query())->links()}}
                 </div>
             </div>
         </div>
+
         <!-- Modal для изменения роли -->
         <div id="roleModal" style="justify-content: center; align-items: center; height: 100%" tabindex="-1"
              class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
@@ -221,7 +229,7 @@
                 filterDropdown.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
-                
+
                 // Модальное окно для изменения роли
                 const roleModal = document.getElementById('roleModal');
                 const roleForm = document.getElementById('roleForm');

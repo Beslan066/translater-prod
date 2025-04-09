@@ -17,22 +17,31 @@
                                 <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Роль</label>
-                                        <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                                            <option value="">Все роли</option>
-                                            @foreach($roles as $id => $name)
-                                                <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <<select name="role">
+        <option value="">Все роли</option>
+        @foreach($roles as $id => $name)
+            <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>
+                {{ $name }}
+            </option>
+        @endforeach
+    </select>
                                     </div>
 
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Сортировка</label>
-                                        <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                                            <option value="">По умолчанию (новые сверху)</option>
-                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>По заработку</option>
-                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>По переводам</option>
-                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>По проверке</option>
-                                        </select>
+                                        <select name="sort">
+        <option value="">Новые сначала</option>
+        <option value="earnings" {{ $currentSort == 'earnings' ? 'selected' : '' }}>
+            По заработку (сначала больше)
+        </option>
+        <option value="translated" {{ $currentSort == 'translated' ? 'selected' : '' }}>
+            По переводам (сначала больше)
+        </option>
+        <option value="on_review" {{ $currentSort == 'on_review' ? 'selected' : '' }}>
+            На проверке (сначала больше)
+        </option>
+    </select>
+
                                     </div>
 
                                     <div class="flex space-x-2">

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExportSentencesToCsv;
 use App\Models\Sentence;
 use App\Models\Translate;
 use App\Models\User;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Storage;
 
 
 
@@ -173,7 +175,6 @@ class SentenceController extends Controller
         ]);
     }
 
-
     public function saveTranslation(Request $request)
     {
 
@@ -292,6 +293,57 @@ class SentenceController extends Controller
 
         $sentence->update(['locked_by'=> null]);
         return redirect()->route('home');
+    }
+
+
+    // Экспорт предложений с переводами
+
+    public function exportSentences()
+    {
+        $job = new ExportSentencesToCsv(Auth::id());
+
+        $batch = Bus::batch([$job])->dispatch();
+
+        // Сохраняем связь batch_id → имя файла
+        Cache::put('export_file_batch_' . $batch->id, $job->fileName, now()->addHours(2));
+
+        return response()->json([
+            'batch_id' => $batch->id,
+            'file_name' => $job->fileName
+        ]);
+    }
+
+    public function checkExportProgress($batchId)
+    {
+        $batch = Bus::findBatch($batchId);
+        if (!$batch) {
+            return response()->json(['error' => 'Batch not found'], 404);
+        }
+
+        $fileName = Cache::get('export_file_batch_' . $batchId);
+        $fileExists = $fileName && file_exists(storage_path('app/public/exports/' . $fileName));
+
+        return response()->json([
+            'progress' => $batch->progress(),
+            'finished' => $batch->finished(),
+            'file_name' => $fileName,
+            'file_exists' => $fileExists,
+            'download_url' => $fileExists ? url('storage/exports/' . $fileName) : null
+        ]);
+    }
+
+
+
+    public function downloadExport($filename)
+    {
+        if (!Storage::disk('public')->exists('exports/'.$filename)) {
+            abort(404, 'File not found');
+        }
+
+        return Storage::disk('public')->download('exports/'.$filename, $filename, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+        ]);
     }
 
 }

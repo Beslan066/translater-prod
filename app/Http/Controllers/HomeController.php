@@ -45,8 +45,6 @@ class HomeController extends Controller
 
         $users = User::query()->where('role', 3)->get();
 
-
-
         return view('sentences.completed', compact('sentencesTranslateCompleted', 'users'));
     }
 

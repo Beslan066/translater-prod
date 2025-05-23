@@ -3,7 +3,7 @@
 @section('content')
     <div class="container mx-auto p-6 flex flex-col justify-between mx-8">
         <div class="flex items-center w-full justify-between">
-            <div>
+            <div class="flex">
                 <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('sentences.search') }}" method="GET">
                     @csrf
                     <label for="simple-search" class="sr-only">Search</label>
@@ -86,11 +86,124 @@
                     @endforeach
                 </tbody>
             </table>
-            <div class="mt-4">
+            <div class="mt-4 flex justify-between items-center">
                 {{$sentencesTranslateCompleted->links()}}
+
+                <button id="exportButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Экспорт в CSV
+                </button>
             </div>
 
         </div>
 
     </div>
+
+
+    <!-- Модальное окно для отображения прогресса -->
+    <div id="exportModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Экспорт данных</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="exportStatus" class="text-sm text-gray-500">Подготовка к экспорту...</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                        <div id="exportProgressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="exportProgressText" class="text-sm text-gray-500 mt-2">0%</p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="closeModalButton" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Закрыть
+                    </button>
+                    <a id="downloadButton" href="#" class="hidden px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 ml-2">
+                        Скачать
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    <script>
+        document.getElementById('exportButton').addEventListener('click', function () {
+            const modal = document.getElementById('exportModal');
+            modal.style.display = 'block';
+
+            const exportStatus = document.getElementById('exportStatus');
+            const progressBar = document.getElementById('exportProgressBar');
+            const progressText = document.getElementById('exportProgressText');
+            const downloadButton = document.getElementById('downloadButton');
+
+            // Сброс состояния
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            downloadButton.style.display = 'none';
+            exportStatus.textContent = 'Подготовка к экспорту...';
+
+            // Запуск экспорта
+            fetch('/export/sentences', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Ошибка запуска экспорта: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Batch started:", data);
+                    const batchId = data.batch_id;
+
+                    if (!batchId) {
+                        throw new Error("Не удалось получить batch_id");
+                    }
+
+                    const checkProgress = () => {
+                        fetch(`/export/progress/${batchId}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Ошибка проверки прогресса: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(progressData => {
+                                console.log("Прогресс:", progressData);
+                                progressBar.style.width = `${progressData.progress}%`;
+                                progressText.textContent = `${progressData.progress}%`;
+
+                                if (progressData.finished) {
+                                    if (progressData.file_exists) {
+                                        exportStatus.textContent = 'Экспорт завершен!';
+                                        downloadButton.href = progressData.download_url;
+                                        downloadButton.style.display = 'inline-block';
+                                    } else {
+                                        exportStatus.textContent = 'Файл не найден. Попробуйте позже.';
+                                    }
+                                } else {
+                                    setTimeout(checkProgress, 2000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Ошибка получения прогресса:", error);
+                                exportStatus.textContent = "Ошибка при получении статуса экспорта.";
+                            });
+                    };
+
+                    setTimeout(checkProgress, 2000);
+                })
+                .catch(error => {
+                    console.error("Ошибка запуска экспорта:", error);
+                    exportStatus.textContent = "Ошибка при запуске экспорта.";
+                });
+        });
+
+        // Закрытие модального окна
+        document.getElementById('closeModalButton').addEventListener('click', function () {
+            document.getElementById('exportModal').classList.add('hidden');
+        });
+    </script>
 @endsection

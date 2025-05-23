@@ -30,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sentences', [HomeController::class, 'deleteSentences'])->name('sentences.delete');
     Route::get('/search', [HomeController::class, 'search'])->name('sentences.search');
 
+    Route::post('/export/sentences', [SentenceController::class, 'exportSentences']);
+    Route::get('/export/progress/{batchId}', [SentenceController::class, 'checkExportProgress']);
+    Route::get('/export/download/{filename}', [SentenceController::class, 'downloadExport']);
+
 
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

@@ -84,6 +84,83 @@ class UserController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('search');
+
+        $query = User::query()
+            ->with(['translations.sentence' => function($query) {
+                $query->where('status', 2);
+            }])
+            ->withCount([
+                'translations as translations_status2_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
+                        $q->where('status', 2);
+                    });
+                },
+                'translations as translations_status1_count' => function($query) {
+                    $query->whereHas('sentence', function($q) {
+                        $q->where('status', 1);
+                    });
+                }
+            ]);
+
+        // Расчет заработка через подзапрос
+        $query->addSelect([
+            'total_earnings' => Translate::selectRaw('COALESCE(SUM(sentences.price), 0)')
+                ->join('sentences', 'translates.sentence_id', '=', 'sentences.id')
+                ->whereColumn('translates.user_id', 'users.id')
+                ->where('sentences.status', 2)
+        ]);
+
+        // Поиск по имени или email
+        if ($searchTerm) {
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Фильтрация по роли
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Глобальная сортировка
+        switch ($request->input('sort')) {
+            case 'earnings':
+                $query->orderBy('total_earnings', 'desc');
+                break;
+            case 'translated':
+                $query->orderBy('translations_status2_count', 'desc');
+                break;
+            case 'on_review':
+                $query->orderBy('translations_status1_count', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $users = $query->paginate(10);
+
+        // Добавляем онлайн статус
+        $users->each(function($user) {
+            $user->is_online = $user->last_seen && now()->diffInMinutes($user->last_seen) < 5;
+
+            if (!isset($user->total_earnings)) {
+                $user->total_earnings = $user->translations
+                    ->where('sentence.status', 2)
+                    ->sum('sentence.price');
+            }
+        });
+
+        return view('home.users.users', [
+            'users' => $users,
+            'roles' => User::getRoles(),
+            'filters' => $request->all()
+        ]);
+    }
+
     public function edit(User $user)
     {
 

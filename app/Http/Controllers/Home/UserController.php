@@ -165,6 +165,7 @@ class UserController extends Controller
     {
 
         $roles = User::getRoles();
+	krsort($roles);
 
         return view('home.users.edit', [
             'user' => $user,

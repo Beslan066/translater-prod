@@ -91,7 +91,7 @@ class HomeController extends Controller
         $sentences = Translate::withTrashed()
             ->with(['sentence', 'user']) // Загрузка предложения и автора перевода
             ->whereNotNull('deleted_at')
-            ->get();
+            ->paginate(10);
 
         return view('sentences.district', [
             'sentences' => $sentences,

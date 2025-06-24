@@ -279,6 +279,7 @@ class UserController extends Controller
                 $query->where('status', 1);
             })
             ->with(['sentence', 'user']) // Добавляем загрузку пользователя
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         $translationsCount = $translations->total(); // Используем total() вместо count() для пагинации

@@ -59,7 +59,7 @@
                                 <!-- Форма редактирования перевода -->
                                 <form action="{{ route('translations.edit', $translation->id) }}" method="post" class="edit-translation-form flex items-center gap-2" data-translation-id="{{ $translation->id }}">
                                     @csrf
-                                    <textarea name="translation" style="resize: none; width: 200px;" class="border border-gray-300 rounded p-2 w-full translation-textarea" rows="2" required>{{ $translation->translation }}</textarea>
+                                    <textarea name="translation" style="resize: none; width: 300px;" class="border border-gray-300 rounded p-2 w-full translation-textarea" rows="4" required>{{ $translation->translation }}</textarea>
                                     <button type="submit" class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
                                         Сохранить
                                     </button>

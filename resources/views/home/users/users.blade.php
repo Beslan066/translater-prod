@@ -78,22 +78,22 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Идентификатор
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Онлайн
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Имя
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Зарегистрирован
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Роль
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Заработано
                             @if(request('sort') == 'earnings')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@
                                 </svg>
                             @endif
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             Переведено
                             @if(request('sort') == 'translated')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@
                                 </svg>
                             @endif
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-6 py-4">
                             На проверке
                             @if(request('sort') == 'on_review')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,53 +127,68 @@
                     <tbody>
                     @foreach($users as $user)
                         <tr class="bg-white border-b">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                 {{$user->id}}
-                            </th>
-                            <td class="px-6 py-4">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="h-3 w-3 rounded-full @if($user->is_online) bg-green-500 @else bg-gray-400 @endif"></div>
                                     <span class="ml-2">
-                                        {{ $user->is_online ? 'Online' : 'Offline' }}
-                                    </span>
+                        {{ $user->is_online ? 'Online' : 'Offline' }}
+                    </span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{$user->name}}
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{$user->created_at->format('d.m.Y H:i')}}
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{\App\Models\User::getRoleName($user->role)}}
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {{ number_format($user->total_earnings ?? 0, 2) }} ₽
                             </td>
-                            <td class="px-6 py-4">
-                                {{ $user->translations_status2_count }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="mr-2">
+                    {{ $user->translations_status2_count }}
+                </span>
                             </td>
-                            <td class="px-6 py-4">
-                                {{ $user->translations_status1_count }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                    <span class="mr-2">
+                        {{ $user->translations_status1_count }}
+                    </span>
+                                    @if($user->role === 3)
+                                        <a href="{{route('users.page', $user->id)}}" class="ml-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 24 24">
+                                                <path fill="#0000EE" d="M 19.980469 2.9902344 A 1.0001 1.0001 0 0 0 19.869141 3 L 15 3 A 1.0001 1.0001 0 1 0 15 5 L 17.585938 5 L 8.2929688 14.292969 A 1.0001 1.0001 0 1 0 9.7070312 15.707031 L 19 6.4140625 L 19 9 A 1.0001 1.0001 0 1 0 21 9 L 21 4.1269531 A 1.0001 1.0001 0 0 0 19.980469 2.9902344 z M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 13 A 1.0001 1.0001 0 1 0 19 13 L 19 19 L 5 19 L 5 5 L 11 5 A 1.0001 1.0001 0 1 0 11 3 L 5 3 z"></path>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                </div>
                             </td>
                             @if(auth()->user()->role === 1)
-                                <td class="px-6 py-4 flex items-center">
-                                    @if($user->role !== 1)
-                                        <a href="{{ route('users.edit', $user->id) }}"
-                                           class="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
-                                            Изменить
-                                        </a>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        @if($user->role !== 1)
+                                            <a href="{{ route('users.edit', $user->id) }}"
+                                               class="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
+                                                Изменить
+                                            </a>
 
-                                        <form action="{{route('user.delete', $user->id)}}" method="post">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit"
-                                                    onclick="return confirm('Вы уверены, что хотите удалить пользователя?')"
-                                                    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
-                                                Удалить
-                                            </button>
-                                        </form>
-                                    @endif
+                                            <form action="{{route('user.delete', $user->id)}}" method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button type="submit"
+                                                        onclick="return confirm('Вы уверены, что хотите удалить пользователя?')"
+                                                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
+                                                    Удалить
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             @endif
                         </tr>

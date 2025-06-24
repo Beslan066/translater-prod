@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateUserRoleRequest;
+use App\Models\Sentence;
 use App\Models\Translate;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -174,7 +175,6 @@ class UserController extends Controller
 
     }
 
-
     public function updateRole(UpdateUserRoleRequest $request, User $user)
     {
         $data = $request->validated();
@@ -267,5 +267,22 @@ class UserController extends Controller
 
             fclose($handle);
         }, 200, $headers);
+    }
+
+    // В вашем контроллере (например, UserController)
+    public function userPage($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $translations = Translate::where('user_id', $userId)
+            ->whereHas('sentence', function($query) {
+                $query->where('status', 1);
+            })
+            ->with(['sentence', 'user']) // Добавляем загрузку пользователя
+            ->paginate(10);
+
+        $translationsCount = $translations->total(); // Используем total() вместо count() для пагинации
+
+        return view('home.users.user', compact('user', 'translations', 'translationsCount'));
     }
 }

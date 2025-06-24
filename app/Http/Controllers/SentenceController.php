@@ -214,10 +214,10 @@ class SentenceController extends Controller
                 'delayed' => 1  // помечаем как отложенное
             ]);
 
-            return redirect()->route('translate')->with('success', 'Предложение отложено');
+            return redirect()->back()->with('success', 'Предложение отложено');
         }
 
-        return redirect()->route('translate')->with('error', 'Не удалось отложить предложение');
+        return redirect()->back()->with('error', 'Не удалось отложить предложение');
     }
 
     public function editTranslation(Request $request, Translate $translation)
@@ -231,10 +231,10 @@ class SentenceController extends Controller
                 'translation' => $request->translation,
             ]);
 
-            return redirect()->route('translate')->with('success', 'Translation updated successfully.');
+            return redirect()->back()->with('success', 'Translation updated successfully.');
         }
 
-        return redirect()->route('translate')->with('error', 'Failed to update translation.');
+        return redirect()->back()->with('error', 'Failed to update translation.');
     }
 
 
@@ -248,10 +248,10 @@ class SentenceController extends Controller
                 'delayed' => 0
             ]);
 
-            return redirect()->route('translate')->with('success', 'Translation approved successfully.');
+            return redirect()->back()->with('success', 'Translation approved successfully.');
         }
 
-        return redirect()->route('translate')->with('error', 'Failed to approve translation.');
+        return redirect()->back()->with('error', 'Failed to approve translation.');
     }
 
     public function rejectTranslation(Request $request, Sentence $sentence)
@@ -268,10 +268,10 @@ class SentenceController extends Controller
                 'delayed' => 0
             ]);
 
-            return redirect()->route('translate')->with('success', 'Translation rejected successfully.');
+            return redirect()->back()->with('success', 'Translation rejected successfully.');
         }
 
-        return redirect()->route('translate')->with('error', 'Failed to reject translation.');
+        return redirect()->back()->with('error', 'Failed to reject translation.');
     }
     public function moderate() {
 

@@ -75,6 +75,8 @@
                 </tbody>
             </table>
         </div>
-
+        <div class="mt-2">
+            {{$sentences->links()}}
+        </div>
     </div>
 @endsection

@@ -144,8 +144,8 @@ class SentenceController extends Controller
 
         $sentencesTranslate = Sentence::query()->with(['translations', 'author'])
             ->where('status', 1)
-
             ->inRandomOrder()->paginate(15);
+
         $users = User::query()->where('role', 3)->get();
 
 

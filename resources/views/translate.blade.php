@@ -165,15 +165,15 @@
                                         @if($item->translations->isNotEmpty())
                                             @foreach($item->translations as $translation)
                                                 <div class="mb-4">
-                                                    <!-- Текущий перевод -->
-                                                    <div class="mb-2">
+                                                    <!-- Текущий перевод с идентификатором -->
+                                                    <div class="mb-2 current-translation" id="current-translation-{{ $translation->id }}">
                                                         {{$translation->translation}}
                                                     </div>
 
                                                     <!-- Форма редактирования перевода -->
-                                                    <form action="{{ route('translations.edit', $translation->id) }}" method="post" class="flex items-center gap-2">
+                                                    <form action="{{ route('translations.edit', $translation->id) }}" method="post" class="edit-translation-form flex items-center gap-2" data-translation-id="{{ $translation->id }}">
                                                         @csrf
-                                                        <textarea name="translation" style="resize: none; width: 200px;" class="border border-gray-300 rounded p-2 w-full" rows="2" required>{{ $translation->translation }}</textarea>
+                                                        <textarea name="translation" style="resize: none; width: 200px;" class="border border-gray-300 rounded p-2 w-full translation-textarea" rows="2" required>{{ $translation->translation }}</textarea>
                                                         <button type="submit" class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
                                                             Сохранить
                                                         </button>
@@ -297,6 +297,45 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        // Обработка формы редактирования перевода
+        $(document).on('submit', '.edit-translation-form', function(e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var url = form.attr('action');
+            var formData = form.serialize();
+            var translationId = form.data('translation-id');
+            var newTranslation = form.find('.translation-textarea').val();
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Обновляем текст текущего перевода
+                    $('#current-translation-' + translationId).text(newTranslation);
+
+                    // Показываем уведомление об успешном сохранении
+                    $('#modalTitle').text('Успех');
+                    $('#modalMessage').text('Перевод успешно обновлен.');
+                    $('#resultModal').removeClass('hidden').addClass('flex');
+                },
+                error: function(xhr) {
+                    $('#modalTitle').text('Ошибка');
+                    $('#modalMessage').text('Произошла ошибка при обновлении перевода: ' + xhr.responseJSON.message);
+                    $('#resultModal').removeClass('hidden').addClass('flex');
+                }
+            });
+        });
+
+        // Закрытие модального окна
+        $('#closeModalButton').on('click', function() {
+            $('#resultModal').removeClass('flex').addClass('hidden');
+        });
+    });
+</script>
 </body>
 </html>
 

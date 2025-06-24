@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/translate', [SentenceController::class, 'getSentence'])->name('translate');
+
     Route::post('/translations/{translation}/edit', [SentenceController::class, 'editTranslation'])->name('translations.edit');
     Route::post('/translate', [SentenceController::class, 'saveTranslation'])->name('translate.save');
 

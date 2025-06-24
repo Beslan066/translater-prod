@@ -60,7 +60,7 @@
                         </select>
                         <div class="px-4 py-2 bg-white rounded-t-lg ">
                             <label for="comment" class="sr-only">Оригинал предложение</label>
-                            <textarea id="comment" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 focus:ring-0" placeholder="" readonly>{{ $sentence->sentence }}</textarea>
+                            <textarea id="comment" rows="6" class="w-full px-0 text-sm text-gray-900 bg-white border-0 focus:ring-0" placeholder="" readonly>{{ $sentence->sentence }}</textarea>
                         </div>
                     </div>
 
@@ -173,7 +173,7 @@
                                                     <!-- Форма редактирования перевода -->
                                                     <form action="{{ route('translations.edit', $translation->id) }}" method="post" class="flex items-center gap-2">
                                                         @csrf
-                                                        <textarea name="translation" style="resize: none;" class="border border-gray-300 rounded p-2 w-full" rows="2" required>{{ $translation->translation }}</textarea>
+                                                        <textarea name="translation" style="resize: none; width: 200px;" class="border border-gray-300 rounded p-2 w-full" rows="2" required>{{ $translation->translation }}</textarea>
                                                         <button type="submit" class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
                                                             Сохранить
                                                         </button>
@@ -202,7 +202,20 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{$item->created_at}}
+                                        @if($item->translations->isNotEmpty())
+                                            @foreach($item->translations as $translation)
+                                                <div>
+                                                    <!-- Автор перевода -->
+                                                    @if($translation->created_at)
+                                                        {{$translation->created_at}}
+                                                    @else
+                                                        (Не удалось получить дату перевода)
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            Нет перевода
+                                        @endif
                                     </td>
 
 
@@ -228,7 +241,9 @@
                             </tbody>
                         </table>
                     </div>
-
+                    <div class="mt-2">
+                        {{$sentencesTranslate->links()}}
+                    </div>
                 </div>
             @endif
         @endif

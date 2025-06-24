@@ -31,6 +31,8 @@ class Sentence extends Model
         return $this->hasMany(Translate::class, 'sentence_id');
     }
 
-
-
+    public function scopeAvailableForCorrectors($query)
+    {
+        return $query->where('status', 1);
+    }
 }

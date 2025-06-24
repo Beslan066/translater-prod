@@ -172,7 +172,20 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                {{$item->created_at}}
+                                @if($item->translations->isNotEmpty())
+                                    @foreach($item->translations as $translation)
+                                        <div>
+                                            <!-- Автор перевода -->
+                                            @if($translation->created_at)
+                                                {{$translation->created_at}}
+                                            @else
+                                                (Дата неизвестна)
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @else
+                                    Нет перевода
+                                @endif
                             </td>
                         </tr>
                     @endforeach

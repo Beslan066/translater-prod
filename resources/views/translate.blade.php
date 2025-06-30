@@ -104,7 +104,7 @@
 
                     </div>
                     <div>
-                        <a href="{{route('users.index')}}" class="flex flex-col items-center" style="cursor: pointer;">
+                        <a href="" class="flex flex-col items-center" style="cursor: pointer;">
                             <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
                             <span style="color: rgb(26 86 219)">показать</span>
                         </a>

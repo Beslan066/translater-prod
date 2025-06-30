@@ -131,6 +131,7 @@ class SentenceController extends Controller
         if (!$sentence) {
             DB::transaction(function () use (&$sentence) {
                 $sentence = Sentence::where('status', 0)
+                    ->whereNot('status', 4)
                     ->whereNull('locked_by')
                     ->inRandomOrder() // Выбираем случайное предложение
                     ->first();

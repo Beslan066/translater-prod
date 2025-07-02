@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\Admin;
+use App\Http\Middleware\Translater;
 use App\Http\Middleware\UpdateLastSeenMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Регистрируем middleware для использования в маршрутах (аналог $routeMiddleware)
         $middleware->alias([
             'admin' => \App\Http\Middleware\Admin::class,
+            'translater' => \App\Http\Middleware\Translater::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

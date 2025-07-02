@@ -91,7 +91,7 @@
                         Переведено <strong class="text-green-900 focus:text-red-600 ...">{{$completedSentences->count()}}</strong> предложений!
                     </div>
                     <div>
-                        <a class="flex flex-col items-center" style="cursor: pointer;">
+                        <a href="{{route('showSentences')}}" class="flex flex-col items-center" style="cursor: pointer;">
                             <img src="{{asset('img/icons/arrowright.svg')}}" alt="" style="width: 130px; height: 40px;">
                             <span style="color: rgb(26 86 219)">показать</span>
                         </a>

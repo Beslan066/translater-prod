@@ -78,4 +78,28 @@ class User extends Authenticatable
         {
             return $this->hasMany(Translate::class, 'user_id', 'id');
         }
+
+
+public function sentencesWithStatusOne()
+{
+    return Sentence::whereIn('id', function ($query) {
+        $query->select('sentence_id')
+              ->from('translates')
+              ->where('user_id', $this->id);
+    })->where('status', 1)->with(['translations' => function ($query) {
+        $query->where('user_id', $this->id);
+    }])->get();
+}
+
+public function sentencesWithStatusTwo()
+{
+    return Sentence::whereIn('id', function ($query) {
+        $query->select('sentence_id')
+              ->from('translates')
+              ->where('user_id', $this->id);
+    })->where('status', 2)->with(['translations' => function ($query) {
+        $query->where('user_id', $this->id);
+    }])->get();
+}
+
 }

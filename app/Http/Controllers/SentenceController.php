@@ -183,33 +183,27 @@ class SentenceController extends Controller
     {
         $user = auth()->user();
 
-        // Получаем предложения с переводами пользователя, отсортированные по дате перевода
-        $baseQuery = Sentence::whereIn('sentences.id', function ($query) use ($user) {
-            $query->select('sentence_id')
-                ->from('translates')
-                ->where('user_id', $user->id);
-        })
-            ->with(['translations' => function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->with('user')
-                    ->orderBy('created_at', 'desc');
-            }])
-            // Сортируем по максимальной дате перевода
-            ->select('sentences.*')
-            ->leftJoin('translates', function ($join) use ($user) {
-                $join->on('sentences.id', '=', 'translates.sentence_id')
-                    ->where('translates.user_id', $user->id);
+        // Таб "На проверке" - переводы для предложений со статусом 1
+        $translationsInReview = Translate::where('user_id', $user->id)
+            ->whereHas('sentence', function($query) {
+                $query->where('status', 1);
             })
-            ->groupBy('sentences.id')
-            ->orderByRaw('MAX(translates.created_at) DESC');
+            ->with(['sentence', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'in_review_page');
 
-        // Разделение по статусу
-        $sentencesInReview = (clone $baseQuery)->where('sentences.status', 1)->paginate(10, ['*'], 'in_review_page');
-        $sentencesTranslated = (clone $baseQuery)->where('sentences.status', 2)->paginate(10, ['*'], 'translated_page');
+        // Таб "Переведено" - переводы для предложений со статусом 2
+        $translationsTranslated = Translate::where('user_id', $user->id)
+            ->whereHas('sentence', function($query) {
+                $query->where('status', 2);
+            })
+            ->with(['sentence', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'translated_page');
 
         return view('translate-progress', [
-            'sentencesInReview' => $sentencesInReview,
-            'sentencesTranslated' => $sentencesTranslated,
+            'translationsInReview' => $translationsInReview,
+            'translationsTranslated' => $translationsTranslated,
         ]);
     }
     public function saveTranslation(Request $request)

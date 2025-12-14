@@ -7,30 +7,38 @@
             <th class="px-6 py-3">Предложение</th>
             <th class="px-6 py-3">Перевод</th>
             <th class="px-6 py-3">Автор</th>
-            <th class="px-6 py-3">Дата</th>
+            <th class="px-6 py-3">Дата перевода</th>
         </tr>
         </thead>
         <tbody>
         @forelse($items as $item)
+            @php
+                // Получаем последний перевод (уже отсортирован в контроллере)
+                $latestTranslation = $item->translations->first();
+            @endphp
             <tr class="bg-white border-b">
                 <td class="px-6 py-4 font-medium text-gray-900">{{ $item->id }}</td>
                 <td class="px-6 py-4">{{ $item->sentence }}</td>
                 <td class="px-6 py-4">
-                    @forelse($item->translations as $translation)
-                        <div>{{ $translation->translation }}</div>
-                    @empty
+                    @if($latestTranslation)
+                        <div>{{ $latestTranslation->translation }}</div>
+                    @else
                         Нет перевода
-                    @endforelse
+                    @endif
                 </td>
                 <td class="px-6 py-4">
-                    @forelse($item->translations as $translation)
-                        <div>{{ $translation->user->name ?? '(Автор неизвестен)' }}</div>
-                    @empty
+                    @if($latestTranslation)
+                        <div>{{ $latestTranslation->user->name ?? '(Автор неизвестен)' }}</div>
+                    @else
                         Нет перевода
-                    @endforelse
+                    @endif
                 </td>
                 <td class="px-6 py-4">
-                    {{ $item->created_at->format('d.m.Y H:i') }}
+                    @if($latestTranslation)
+                        {{ $latestTranslation->created_at->format('d.m.Y H:i') }}
+                    @else
+                        Нет даты
+                    @endif
                 </td>
             </tr>
         @empty

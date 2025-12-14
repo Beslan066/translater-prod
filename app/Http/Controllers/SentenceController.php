@@ -183,29 +183,31 @@ class SentenceController extends Controller
     {
         $user = auth()->user();
 
-        // Общая выборка предложений, переведённых текущим пользователем
-        $baseQuery = Sentence::whereIn('id', function ($query) use ($user) {
-            $query->select('sentence_id')
-                ->from('translates')
-                ->where('user_id', $user->id);
-        })->with(['translations' => function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                ->with('user')
-                ->orderBy('created_at', 'desc'); // Сортировка переводов по дате
-        }]);
+        // Базовый запрос для переводов пользователя с сортировкой по дате создания перевода
+        $baseQuery = Translate::where('user_id', $user->id)
+            ->with(['sentence', 'user'])
+            ->orderBy('created_at', 'desc'); // Сортировка по дате перевода
 
-        // Разделение по статусу с сортировкой переводов
-        $sentencesInReview = (clone $baseQuery)
-            ->where('status', 1)
+        // Разделение по статусу предложения
+        $translationsInReview = (clone $baseQuery)
+            ->whereHas('sentence', function($query) {
+                $query->where('status', 1); // предложения на проверке
+            })
             ->paginate(10, ['*'], 'in_review_page');
 
-        $sentencesTranslated = (clone $baseQuery)
-            ->where('status', 2)
+        $translationsTranslated = (clone $baseQuery)
+            ->whereHas('sentence', function($query) {
+                $query->where('status', 2); // переведенные предложения
+            })
             ->paginate(10, ['*'], 'translated_page');
 
+        // Если нужна общая статистика
+        $translationsCount = $translationsInReview->total() + $translationsTranslated->total();
+
         return view('translate-progress', [
-            'sentencesInReview' => $sentencesInReview,
-            'sentencesTranslated' => $sentencesTranslated,
+            'translationsInReview' => $translationsInReview,
+            'translationsTranslated' => $translationsTranslated,
+            'translationsCount' => $translationsCount,
         ]);
     }
 

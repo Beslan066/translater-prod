@@ -183,27 +183,27 @@ class SentenceController extends Controller
     {
         $user = auth()->user();
 
-        // Базовый запрос
+        // Базовый запрос для переводов пользователя
         $baseQuery = Translate::where('user_id', $user->id)
             ->with(['sentence', 'user'])
             ->orderBy('created_at', 'desc');
 
-        // Разделение по статусу
-        $translationsInReview = (clone $baseQuery)
+        // Используем имена переменных, которые ожидает шаблон
+        $sentencesInReview = (clone $baseQuery)
             ->whereHas('sentence', function($query) {
                 $query->where('status', 1);
             })
             ->paginate(10, ['*'], 'in_review_page');
 
-        $translationsTranslated = (clone $baseQuery)
+        $sentencesTranslated = (clone $baseQuery)
             ->whereHas('sentence', function($query) {
                 $query->where('status', 2);
             })
             ->paginate(10, ['*'], 'translated_page');
 
         return view('translate-progress', [
-            'translationsInReview' => $translationsInReview,
-            'translationsTranslated' => $translationsTranslated,
+            'sentencesInReview' => $sentencesInReview,
+            'sentencesTranslated' => $sentencesTranslated,
         ]);
     }
 

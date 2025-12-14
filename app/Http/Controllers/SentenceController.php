@@ -180,35 +180,27 @@ class SentenceController extends Controller
     }
 
     public function showUserTranslations()
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        // Базовый запрос для переводов пользователя
-        $baseQuery = Translate::where('user_id', $user->id)
-            ->with(['sentence', 'user'])
-            ->orderBy('created_at', 'desc');
+    // Общая выборка предложений, переведённых текущим пользователем
+    $baseQuery = Sentence::whereIn('id', function ($query) use ($user) {
+        $query->select('sentence_id')
+              ->from('translates')
+              ->where('user_id', $user->id);
+    })->with(['translations' => function ($query) use ($user) {
+        $query->where('user_id', $user->id)->with('user');
+    }]);
 
-        // Разделение по статусу предложения
-        $sentencesInReview = (clone $baseQuery)  // ← переименуем переменную
-        ->whereHas('sentence', function($query) {
-            $query->where('status', 1);
-        })
-            ->paginate(10, ['*'], 'in_review_page');
+    // Разделение по статусу
+    $sentencesInReview = (clone $baseQuery)->where('status', 1)->paginate(10, ['*'], 'in_review_page');
+    $sentencesTranslated = (clone $baseQuery)->where('status', 2)->paginate(10, ['*'], 'translated_page');
 
-        $sentencesTranslated = (clone $baseQuery)  // ← переименуем переменную
-        ->whereHas('sentence', function($query) {
-            $query->where('status', 2);
-        })
-            ->paginate(10, ['*'], 'translated_page');
-
-        $translationsCount = $sentencesInReview->total() + $sentencesTranslated->total();
-
-        return view('translate-progress', compact(
-            'sentencesInReview',
-            'sentencesTranslated',
-            'translationsCount'
-        ));
-    }
+    return view('translate-progress', [
+        'sentencesInReview' => $sentencesInReview,
+        'sentencesTranslated' => $sentencesTranslated,
+    ]);
+}
 
 
 

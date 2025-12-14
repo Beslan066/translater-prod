@@ -183,32 +183,31 @@ class SentenceController extends Controller
     {
         $user = auth()->user();
 
-        // Базовый запрос для переводов пользователя с сортировкой по дате создания перевода
+        // Базовый запрос для переводов пользователя
         $baseQuery = Translate::where('user_id', $user->id)
             ->with(['sentence', 'user'])
-            ->orderBy('created_at', 'desc'); // Сортировка по дате перевода
+            ->orderBy('created_at', 'desc');
 
         // Разделение по статусу предложения
-        $translationsInReview = (clone $baseQuery)
-            ->whereHas('sentence', function($query) {
-                $query->where('status', 1); // предложения на проверке
-            })
+        $sentencesInReview = (clone $baseQuery)  // ← переименуем переменную
+        ->whereHas('sentence', function($query) {
+            $query->where('status', 1);
+        })
             ->paginate(10, ['*'], 'in_review_page');
 
-        $translationsTranslated = (clone $baseQuery)
-            ->whereHas('sentence', function($query) {
-                $query->where('status', 2); // переведенные предложения
-            })
+        $sentencesTranslated = (clone $baseQuery)  // ← переименуем переменную
+        ->whereHas('sentence', function($query) {
+            $query->where('status', 2);
+        })
             ->paginate(10, ['*'], 'translated_page');
 
-        // Если нужна общая статистика
-        $translationsCount = $translationsInReview->total() + $translationsTranslated->total();
+        $translationsCount = $sentencesInReview->total() + $sentencesTranslated->total();
 
-        return view('translate-progress', [
-            'translationsInReview' => $translationsInReview,
-            'translationsTranslated' => $translationsTranslated,
-            'translationsCount' => $translationsCount,
-        ]);
+        return view('translate-progress', compact(
+            'sentencesInReview',
+            'sentencesTranslated',
+            'translationsCount'
+        ));
     }
 
 

@@ -188,23 +188,26 @@ class SentenceController extends Controller
             ->with(['sentence', 'user'])
             ->orderBy('created_at', 'desc');
 
-        // Используем имена переменных, которые ожидает шаблон
-        $sentencesInReview = (clone $baseQuery)
-            ->whereHas('sentence', function($query) {
-                $query->where('status', 1);
-            })
+        // Разделение по статусу предложения
+        $sentencesInReview = (clone $baseQuery)  // ← переименуем переменную
+        ->whereHas('sentence', function($query) {
+            $query->where('status', 1);
+        })
             ->paginate(10, ['*'], 'in_review_page');
 
-        $sentencesTranslated = (clone $baseQuery)
-            ->whereHas('sentence', function($query) {
-                $query->where('status', 2);
-            })
+        $sentencesTranslated = (clone $baseQuery)  // ← переименуем переменную
+        ->whereHas('sentence', function($query) {
+            $query->where('status', 2);
+        })
             ->paginate(10, ['*'], 'translated_page');
 
-        return view('translate-progress', [
-            'sentencesInReview' => $sentencesInReview,
-            'sentencesTranslated' => $sentencesTranslated,
-        ]);
+        $translationsCount = $sentencesInReview->total() + $sentencesTranslated->total();
+
+        return view('translate-progress', compact(
+            'sentencesInReview',
+            'sentencesTranslated',
+            'translationsCount'
+        ));
     }
 
 

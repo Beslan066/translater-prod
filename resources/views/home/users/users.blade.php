@@ -9,16 +9,22 @@
                     <div class="mb-4 mr-6 flex items-center space-x-4">
 
                         <div>
-                            <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('users.search') }}" method="GET">
+                            <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('users.search') }}"
+                                  method="GET">
                                 @csrf
                                 <label for="simple-search" class="sr-only">Поиск</label>
                                 <div class="relative w-full">
 
-                                    <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Введите для поиска..." required name="search"/>
+                                    <input type="text" id="simple-search"
+                                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                           placeholder="Введите для поиска..." required name="search"/>
                                 </div>
-                                <button type="submit" class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                <button type="submit"
+                                        class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                         fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                              stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                     </svg>
                                     <span class="sr-only">Найти</span>
                                 </button>
@@ -26,16 +32,19 @@
                         </div>
                         <!-- Кнопка фильтра -->
                         <div class="relative">
-                            <button id="filterButton" class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+                            <button id="filterButton"
+                                    class="text-gray-700 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
                                 <img src="{{asset('img/icons/filter.svg')}}" alt="">
                             </button>
 
                             <!-- Выпадающее меню фильтрации -->
-                            <div id="filterDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
+                            <div id="filterDropdown"
+                                 class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10">
                                 <form method="GET" action="{{ route('users.index') }}" class="p-4 space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Роль</label>
-                                        <select name="role" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                        <select name="role"
+                                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
                                             <option value="">Все роли</option>
                                             @foreach($roles as $id => $name)
                                                 <option value="{{ $id }}" {{ request('role') == $id ? 'selected' : '' }}>{{ $name }}</option>
@@ -45,19 +54,28 @@
 
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Сортировка</label>
-                                        <select name="sort" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                                        <select name="sort"
+                                                class="mt-1 block w-full border border-gray-300 rounded-md p-2">
                                             <option value="">По дате регистрации</option>
-                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>По заработку</option>
-                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>По переводам</option>
-                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>По проверке</option>
+                                            <option value="earnings" {{ request('sort') == 'earnings' ? 'selected' : '' }}>
+                                                По заработку
+                                            </option>
+                                            <option value="translated" {{ request('sort') == 'translated' ? 'selected' : '' }}>
+                                                По переводам
+                                            </option>
+                                            <option value="on_review" {{ request('sort') == 'on_review' ? 'selected' : '' }}>
+                                                По проверке
+                                            </option>
                                         </select>
                                     </div>
 
                                     <div class="flex space-x-2">
-                                        <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                        <button type="submit"
+                                                class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
                                             Применить
                                         </button>
-                                        <a href="{{ route('users.index') }}" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center">
+                                        <a href="{{ route('users.index') }}"
+                                           class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center">
                                             Сбросить
                                         </a>
                                     </div>
@@ -66,7 +84,9 @@
                         </div>
 
                         <!-- Иконка CSV -->
-                        <a href="{{ route('users.export') }}" class="text-gray-700 hover:text-gray-900 rounded-full hover:bg-gray-100" title="Экспорт в CSV">
+                        <a href="{{ route('users.export') }}"
+                           class="text-gray-700 hover:text-gray-900 rounded-full hover:bg-gray-100"
+                           title="Экспорт в CSV">
                             <img src="{{asset('img/icons/csv.svg')}}" alt="Экспорт в CSV">
                         </a>
                     </div>
@@ -97,7 +117,8 @@
                             Заработано
                             @if(request('sort') == 'earnings')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             @endif
                         </th>
@@ -105,7 +126,8 @@
                             Переведено
                             @if(request('sort') == 'translated')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             @endif
                         </th>
@@ -113,10 +135,21 @@
                             На проверке
                             @if(request('sort') == 'on_review')
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             @endif
                         </th>
+                        <th scope="col" class="px-6 py-4">
+                            Откорректировано
+                            @if(request('sort') == 'reviewed')
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            @endif
+                        </th>
+
                         @if(auth()->user()->role === 1)
                             <th scope="col" class="px-6 py-3">
                                 Действие
@@ -162,12 +195,20 @@
                     </span>
                                     @if($user->role === 3)
                                         <a href="{{route('users.page', $user->id)}}" class="ml-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 24 24">
-                                                <path fill="#0000EE" d="M 19.980469 2.9902344 A 1.0001 1.0001 0 0 0 19.869141 3 L 15 3 A 1.0001 1.0001 0 1 0 15 5 L 17.585938 5 L 8.2929688 14.292969 A 1.0001 1.0001 0 1 0 9.7070312 15.707031 L 19 6.4140625 L 19 9 A 1.0001 1.0001 0 1 0 21 9 L 21 4.1269531 A 1.0001 1.0001 0 0 0 19.980469 2.9902344 z M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 13 A 1.0001 1.0001 0 1 0 19 13 L 19 19 L 5 19 L 5 5 L 11 5 A 1.0001 1.0001 0 1 0 11 3 L 5 3 z"></path>
+                                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px"
+                                                 height="20px" viewBox="0 0 24 24">
+                                                <path fill="#0000EE"
+                                                      d="M 19.980469 2.9902344 A 1.0001 1.0001 0 0 0 19.869141 3 L 15 3 A 1.0001 1.0001 0 1 0 15 5 L 17.585938 5 L 8.2929688 14.292969 A 1.0001 1.0001 0 1 0 9.7070312 15.707031 L 19 6.4140625 L 19 9 A 1.0001 1.0001 0 1 0 21 9 L 21 4.1269531 A 1.0001 1.0001 0 0 0 19.980469 2.9902344 z M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 13 A 1.0001 1.0001 0 1 0 19 13 L 19 19 L 5 19 L 5 5 L 11 5 A 1.0001 1.0001 0 1 0 11 3 L 5 3 z"></path>
                                             </svg>
                                         </a>
                                     @endif
                                 </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($user->role === 2)
+                                    {{ $user->reviewed_count ?? 0 }}
+
+                                @endif
                             </td>
                             @if(auth()->user()->role === 1)
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -249,16 +290,16 @@
                 const filterButton = document.getElementById('filterButton');
                 const filterDropdown = document.getElementById('filterDropdown');
 
-                filterButton.addEventListener('click', function(e) {
+                filterButton.addEventListener('click', function (e) {
                     e.stopPropagation();
                     filterDropdown.classList.toggle('hidden');
                 });
 
-                document.addEventListener('click', function() {
+                document.addEventListener('click', function () {
                     filterDropdown.classList.add('hidden');
                 });
 
-                filterDropdown.addEventListener('click', function(e) {
+                filterDropdown.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
 

@@ -18,9 +18,15 @@ class Sentence extends Model
       'author',
       'locked_by',
       'price',
-      'delayed'
+      'delayed',
+      'reviewed_by',
+      'reviewed_at'
 
     ];
+
+    // Статусы предложений
+    const STATUS_PENDING = 1;      // На проверке (ожидает корректора)
+    const STATUS_COMPLETED = 2;    // Переведено/подтверждено
 
     public  function author() {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -29,6 +35,11 @@ class Sentence extends Model
     public function translations()
     {
         return $this->hasMany(Translate::class, 'sentence_id');
+    }
+
+    // Связь с корректором, который подтвердил
+    public function reviewer() {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function scopeAvailableForCorrectors($query)

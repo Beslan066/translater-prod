@@ -270,10 +270,12 @@ class SentenceController extends Controller
     {
         // Проверяем, что статус предложения равен 1
         if ($sentence->status == 1) {
-            // Обновляем статус на 2
+            // Обновляем статус на 2 и сохраняем корректора
             $sentence->update([
                 'status' => 2,
-                'delayed' => 0
+                'delayed' => 0,
+                'reviewed_by' => Auth::id(),  // Сохраняем ID текущего корректора
+                'reviewed_at' => now()         // Сохраняем время подтверждения
             ]);
 
             return redirect()->back()->with('success', 'Translation approved successfully.');
@@ -282,6 +284,7 @@ class SentenceController extends Controller
         return redirect()->back()->with('error', 'Failed to approve translation.');
     }
 
+
     public function rejectTranslation(Request $request, Sentence $sentence)
     {
         // Проверяем, что статус предложения равен 1
@@ -289,11 +292,13 @@ class SentenceController extends Controller
             // Удаляем перевод из таблицы translates
             Translate::where('sentence_id', $sentence->id)->delete();
 
-            // Обновляем статус на 0
+            // Обновляем статус на 0, сбрасываем корректора
             $sentence->update([
                 'status' => 0,
                 'locked_by' => null,
-                'delayed' => 0
+                'delayed' => 0,
+                'reviewed_by' => null,  // Сбрасываем корректора при отклонении
+                'reviewed_at' => null    // Сбрасываем время
             ]);
 
             return redirect()->back()->with('success', 'Translation rejected successfully.');

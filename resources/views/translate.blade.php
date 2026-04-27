@@ -141,11 +141,13 @@
                                     Перевод
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Автор
+                                    Переводчик
                                 </th>
-
                                 <th scope="col" class="px-6 py-3">
-                                    Переведен
+                                    Дата перевода
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Корректор
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     Действие
@@ -155,9 +157,9 @@
                             <tbody>
                             @foreach($sentencesTranslate as $item)
                                 <tr class="bg-white border-b">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                         {{$item->id}}
-                                    </th>
+                                    </td>
                                     <td class="px-6 py-4">
                                         {{$item->sentence}}
                                     </td>
@@ -165,7 +167,7 @@
                                         @if($item->translations->isNotEmpty())
                                             @foreach($item->translations as $translation)
                                                 <div class="mb-4">
-                                                    <!-- Текущий перевод с идентификатором -->
+                                                    <!-- Текущий перевод -->
                                                     <div class="mb-2 current-translation" id="current-translation-{{ $translation->id }}">
                                                         {{$translation->translation}}
                                                     </div>
@@ -185,11 +187,9 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        <!-- Перебираем все переводы предложения -->
                                         @if($item->translations->isNotEmpty())
                                             @foreach($item->translations as $translation)
                                                 <div>
-                                                    <!-- Автор перевода -->
                                                     @if($translation->user)
                                                         {{$translation->user->name}}
                                                     @else
@@ -205,9 +205,8 @@
                                         @if($item->translations->isNotEmpty())
                                             @foreach($item->translations as $translation)
                                                 <div>
-                                                    <!-- Автор перевода -->
                                                     @if($translation->created_at)
-                                                        {{$translation->created_at}}
+                                                        {{$translation->created_at->format('d.m.Y H:i')}}
                                                     @else
                                                         (Не удалось получить дату перевода)
                                                     @endif
@@ -217,31 +216,50 @@
                                             Нет перевода
                                         @endif
                                     </td>
-
-
                                     <td class="px-6 py-4">
-                                       <form action="{{route('sentences.approve', $item->id)}}" method="post">
-                                            @csrf
-                                            <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Подтвердить</button>
-                                        </form>
+                                        @if($item->reviewed_by)
+                                            @php
+                                                $reviewer = \App\Models\User::find($item->reviewed_by);
+                                            @endphp
+                                            <div>
+                                                <span class="font-medium">{{ $reviewer ? $reviewer->name : 'Неизвестный корректор' }}</span>
+                                                <br>
+                                                <small class="text-gray-500">{{ $item->reviewed_at ? \Carbon\Carbon::parse($item->reviewed_at)->format('d.m.Y H:i') : '' }}</small>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col gap-2">
+                                            <form action="{{route('sentences.approve', $item->id)}}" method="post">
+                                                @csrf
+                                                <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 w-full">
+                                                    Подтвердить
+                                                </button>
+                                            </form>
 
-                                        <form action="{{route('sentences.reject', $item->id)}}" method="post">
-                                            @csrf
-                                            <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Отклонить</button>
-                                        </form>
-                                        <form action="{{route('sentences.delay', $item->id)}}" method="post">
-                                            @csrf
-                                            <button type="submit" class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
-                                                Отложить
-                                            </button>
-                                        </form>
+                                            <form action="{{route('sentences.reject', $item->id)}}" method="post">
+                                                @csrf
+                                                <button type="submit" onclick="return confirm('Вы уверены, что хотите отклонить этот перевод?')" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 w-full">
+                                                    Отклонить
+                                                </button>
+                                            </form>
+
+                                            <form action="{{route('sentences.delay', $item->id)}}" method="post">
+                                                @csrf
+                                                <button type="submit" class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 w-full">
+                                                    Отложить
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-2">
+                    <div class="mt-4">
                         {{$sentencesTranslate->links()}}
                     </div>
                 </div>

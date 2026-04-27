@@ -24,17 +24,27 @@ class UserController extends Controller
                 $query->where('status', 2);
             }])
             ->withCount([
+                // Количество переведенных предложений (статус 2)
                 'translations as translations_status2_count' => function($query) {
                     $query->whereHas('sentence', function($q) {
                         $q->where('status', 2);
                     });
                 },
+                // Количество на проверке (статус 1)
                 'translations as translations_status1_count' => function($query) {
                     $query->whereHas('sentence', function($q) {
                         $q->where('status', 1);
                     });
                 }
             ]);
+
+        // Добавляем подзапрос для подсчета подтвержденных корректором предложений
+        // Это отдельный select, не through withCount
+        $query->addSelect([
+            'reviewed_count' => Sentence::selectRaw('COUNT(*)')
+                ->whereColumn('sentences.reviewed_by', 'users.id')
+                ->where('sentences.status', 2)
+        ]);
 
         // Расчет заработка через подзапрос
         $query->addSelect([
@@ -60,6 +70,9 @@ class UserController extends Controller
             case 'on_review':
                 $query->orderBy('translations_status1_count', 'desc');
                 break;
+            case 'reviewed':
+                $query->orderBy('reviewed_count', 'desc');
+                break;
             default:
                 $query->orderBy('created_at', 'desc');
         }
@@ -76,6 +89,9 @@ class UserController extends Controller
                     ->where('sentence.status', 2)
                     ->sum('sentence.price');
             }
+
+            // Устанавливаем количество откорректированных для корректоров
+            // reviewed_count уже есть из addSelect
         });
 
         return view('home.users.users', [

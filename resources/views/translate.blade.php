@@ -126,7 +126,7 @@
         @if(auth()->user()->role == 2)
             @if(isset($sentencesTranslate))
                 <div class="container mx-auto p-6 flex flex-col justify-between card-container">
-                    <h3 class="mb-8">Предложения в процессе {{$sentencesTranslate->count()}}:</h3>
+                    <h3 class="mb-4">Вами откорректировано предложений: {{ $reviewedCount }}</h3>
                     <div class="relative overflow-x-auto">
                         <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">

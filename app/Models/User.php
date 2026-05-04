@@ -102,4 +102,12 @@ public function sentencesWithStatusTwo()
     }])->get();
 }
 
+    public function getReviewedCountAttribute()
+    {
+        // Подсчет предложений, которые пользователь откорректировал (статус 2)
+        return Sentence::where('reviewed_by', $this->id)
+            ->where('status', 2)
+            ->count();
+    }
+
 }

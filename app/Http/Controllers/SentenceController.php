@@ -114,6 +114,9 @@ class SentenceController extends Controller
     public function getSentence()
     {
         $sentence = null;
+        $completedSentences = collect(); // Инициализируем пустой коллекцией
+        $totalEarnings = 0;
+        $reviewedCount = 0;
 
         // Проверяем, есть ли предложение в сеансе
         if (Session::has('current_sentence_id')) {
@@ -149,11 +152,10 @@ class SentenceController extends Controller
 
         $users = User::query()->where('role', 3)->get();
 
-
-
-        if (\auth()->user()->role) {
+        // Для переводчиков (role = 3)
+        if (auth()->user()->role == 3) {
             $completedSentences = Translate::query()
-                ->where('user_id', \auth()->user()->id)
+                ->where('user_id', auth()->user()->id)
                 ->whereHas('sentence', function ($query) {
                     $query->where('status', 2); // Учитываем только предложения со статусом 2
                 })
@@ -165,9 +167,14 @@ class SentenceController extends Controller
             });
         }
 
+        // Для корректоров (role = 2)
+        if (auth()->user()->role == 2) {
+            $reviewedCount = Sentence::where('reviewed_by', auth()->user()->id)
+                ->where('status', 2)
+                ->count();
+        }
 
         $deletedSentences = Translate::query()->where('deleted_at', '!=', null)->get();
-
 
         return view('translate', [
             'sentence' => $sentence,
@@ -175,7 +182,8 @@ class SentenceController extends Controller
             'users' => $users,
             'completedSentences' => $completedSentences,
             'deletedSentences' => $deletedSentences,
-            'totalEarnings' => $totalEarnings
+            'totalEarnings' => $totalEarnings,
+            'reviewedCount' => $reviewedCount // Добавляем переменную в представление
         ]);
     }
 

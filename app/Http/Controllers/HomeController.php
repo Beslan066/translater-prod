@@ -42,6 +42,17 @@ class HomeController extends Controller
         $query = Sentence::with(['translations.user', 'reviewer'])
             ->where('status', 2);
 
+        // Поиск по предложению или переводу
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('sentence', 'like', "%{$search}%")
+                    ->orWhereHas('translations', function($q2) use ($search) {
+                        $q2->where('translation', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         // Фильтрация по дате от
         if ($request->filled('date_from')) {
             $query->where(function($q) use ($request) {
@@ -76,30 +87,25 @@ class HomeController extends Controller
 
         switch ($sortBy) {
             case 'id':
-                // Сортировка по ID
                 $query->orderBy('id', $sortOrder);
                 break;
-
             case 'sentence':
-                // Сортировка по тексту предложения
                 $query->orderBy('sentence', $sortOrder);
                 break;
-
             case 'date':
             default:
-                // Сортировка по дате подтверждения (reviewed_at),
-                // но если NULL то используем created_at
                 if ($sortOrder === 'desc') {
-                    // Сначала новые: сортируем NULL в конец
                     $query->orderByRaw('COALESCE(reviewed_at, created_at) DESC');
                 } else {
-                    // Сначала старые: сортируем NULL в начало
                     $query->orderByRaw('COALESCE(reviewed_at, created_at) ASC');
                 }
                 break;
         }
 
-        $sentencesTranslateCompleted = $query->paginate(10);
+        $sentencesTranslateCompleted = $query->paginate(30);
+
+        // Сохраняем поисковый запрос для отображения в форме
+        $sentencesTranslateCompleted->appends($request->query());
 
         // Получаем всех переводчиков и корректоров
         $translators = User::where('role', User::ROLE_TEACHER)->get();

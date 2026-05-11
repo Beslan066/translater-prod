@@ -5,10 +5,13 @@
         <div class="flex items-center w-full justify-between">
             <div class="flex">
                 <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('sentence.completed') }}" method="GET">
-                    @csrf
                     <label for="simple-search" class="sr-only">Search</label>
                     <div class="relative w-full">
-                        <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Введите для поиска..." name="search"/>
+                        <input type="text" id="simple-search"
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5"
+                               placeholder="Введите для поиска..."
+                               name="search"
+                               value="{{ request('search') }}"/>
                     </div>
                     <button type="submit" class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -195,7 +198,7 @@
             </table>
 
             <div class="mt-4 flex justify-between items-center">
-                {{$sentencesTranslateCompleted->appends(request()->query())->links()}}
+                {{ $sentencesTranslateCompleted->appends(request()->query())->links() }}
 
                 <button id="exportButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                     Экспорт в CSV

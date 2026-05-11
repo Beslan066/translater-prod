@@ -24,6 +24,12 @@ class Sentence extends Model
 
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'reviewed_at' => 'datetime',
+    ];
+
     // Статусы предложений
     const STATUS_PENDING = 1;      // На проверке (ожидает корректора)
     const STATUS_COMPLETED = 2;    // Переведено/подтверждено

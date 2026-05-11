@@ -4,12 +4,11 @@
     <div class="container mx-auto p-6 flex flex-col justify-between mx-8">
         <div class="flex items-center w-full justify-between">
             <div class="flex">
-                <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('sentences.search') }}" method="GET">
+                <form class="flex items-center max-w-sm mx-auto p-6" action="{{ route('sentence.completed') }}" method="GET">
                     @csrf
                     <label for="simple-search" class="sr-only">Search</label>
                     <div class="relative w-full">
-
-                        <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 " placeholder="Введите для поиска..." required name="search"/>
+                        <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Введите для поиска..." name="search"/>
                     </div>
                     <button type="submit" class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -20,7 +19,96 @@
                 </form>
             </div>
         </div>
-        <div class="relative overflow-x-auto px-6 ">
+
+        <!-- Форма фильтрации и сортировки -->
+        <div class="bg-gray-50 p-4 rounded-lg mb-4 mx-6">
+            <form method="GET" action="{{ route('sentence.completed') }}" class="grid grid-cols-1 md:grid-cols-7 gap-4">
+                <!-- Фильтр по дате от -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Дата от</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <!-- Фильтр по дате до -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Дата до</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <!-- Фильтр по переводчику -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Переводчик</label>
+                    <select name="translator_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Все</option>
+                        @foreach($translators as $translator)
+                            <option value="{{ $translator->id }}" {{ request('translator_id') == $translator->id ? 'selected' : '' }}>
+                                {{ $translator->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Фильтр по корректору -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Корректор</label>
+                    <select name="reviewer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Все</option>
+                        @foreach($correctors as $corrector)
+                            <option value="{{ $corrector->id }}" {{ request('reviewer_id') == $corrector->id ? 'selected' : '' }}>
+                                {{ $corrector->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Сортировка по -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Сортировать по</label>
+                    <select name="sort_by" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="date" {{ request('sort_by', 'date') == 'date' ? 'selected' : '' }}>Дате подтверждения</option>
+                        <option value="id" {{ request('sort_by') == 'id' ? 'selected' : '' }}>ID (сначала новые/старые)</option>
+                        <option value="sentence" {{ request('sort_by') == 'sentence' ? 'selected' : '' }}>Предложению (А-Я)</option>
+                    </select>
+                </div>
+
+                <!-- Порядок сортировки -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Порядок</label>
+                    <select name="sort_order" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>Сначала новые</option>
+                        <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Сначала старые</option>
+                    </select>
+                </div>
+
+                <!-- Кнопки -->
+                <div class="flex gap-2 items-end">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Применить
+                    </button>
+                    <a href="{{ route('sentence.completed') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-center">
+                        Сбросить
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Информация о текущей сортировке -->
+        <div class="text-sm text-gray-600 mb-2 px-6">
+            @php
+                $sortByText = [
+                    'date' => 'дате подтверждения',
+                    'id' => 'ID',
+                    'sentence' => 'предложению'
+                ][request('sort_by', 'date')];
+
+                $sortOrderText = request('sort_order', 'desc') == 'desc' ? 'новые сначала' : 'старые сначала';
+            @endphp
+            📊 Сортировка по <strong>{{ $sortByText }}</strong> ({{ $sortOrderText }})
+        </div>
+
+        <div class="relative overflow-x-auto px-6">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
@@ -34,10 +122,16 @@
                         Перевод
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Автор
+                        Переводчик
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Переведен
+                        Корректор
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Подтвержден
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Действия
                     </th>
                 </tr>
                 </thead>
@@ -54,7 +148,6 @@
                             @if($item->translations->isNotEmpty())
                                 @foreach($item->translations as $translation)
                                     <div>
-                                        <!-- Перевод предложения -->
                                         {{$translation->translation}}
                                     </div>
                                 @endforeach
@@ -63,11 +156,9 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            <!-- Перебираем все переводы предложения -->
                             @if($item->translations->isNotEmpty())
                                 @foreach($item->translations as $translation)
                                     <div>
-                                        <!-- Автор перевода -->
                                         @if($translation->user)
                                             {{$translation->user->name}}
                                         @else
@@ -80,24 +171,38 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            {{$item->created_at}}
+                            @if($item->reviewer)
+                                {{$item->reviewer->name}}
+                                @if($item->reviewer->role == 2)
+                                    <span class="text-xs text-green-600">(Корректор)</span>
+                                @endif
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            {{$item->reviewed_at ? $item->reviewed_at->format('d.m.Y H:i') : $item->created_at->format('d.m.Y H:i')}}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button onclick="returnToPending({{ $item->id }})"
+                                    class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded text-xs">
+                                Вернуть на проверку
+                            </button>
                         </td>
                     </tr>
-                    @endforeach
+                @endforeach
                 </tbody>
             </table>
+
             <div class="mt-4 flex justify-between items-center">
-                {{$sentencesTranslateCompleted->links()}}
+                {{$sentencesTranslateCompleted->appends(request()->query())->links()}}
 
                 <button id="exportButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                     Экспорт в CSV
                 </button>
             </div>
-
         </div>
-
     </div>
-
 
     <!-- Модальное окно для отображения прогресса -->
     <div id="exportModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
@@ -122,13 +227,25 @@
             </div>
         </div>
     </div>
-    </div>
 
+    <!-- Форма для возврата на проверку -->
+    <form id="returnForm" method="POST" style="display: none;">
+        @csrf
+        @method('PATCH')
+    </form>
 
     <script>
+        function returnToPending(sentenceId) {
+            if (confirm('Вы уверены, что хотите вернуть это предложение на проверку?')) {
+                const form = document.getElementById('returnForm');
+                form.action = `/sentences/${sentenceId}/return-to-pending`;
+                form.submit();
+            }
+        }
+
         document.getElementById('exportButton').addEventListener('click', function () {
             const modal = document.getElementById('exportModal');
-            modal.style.display = 'block';
+            modal.classList.remove('hidden');
 
             const exportStatus = document.getElementById('exportStatus');
             const progressBar = document.getElementById('exportProgressBar');
@@ -145,7 +262,8 @@
             fetch('/export/sentences', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
                 }
             })
                 .then(response => {
@@ -207,3 +325,16 @@
         });
     </script>
 @endsection
+
+
+@if(session('success'))
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline">{{ session('success') }}</span>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline">{{ session('error') }}</span>
+    </div>
+@endif

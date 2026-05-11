@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sentences/moderating', [SentenceController::class, 'moderate'])->name('sentence.moderate')->middleware(Admin::class);
     Route::get('/sentences/completed', [HomeController::class, 'completedSentences'])->name('sentence.completed');
     Route::get('/sentences/district', [HomeController::class, 'districtSentences'])->name('sentence.district');
+    Route::patch('/sentences/{sentence}/return-to-pending', [HomeController::class, 'returnToPending'])->name('sentences.return-to-pending');
     Route::patch('/sentences/{sentence}', [SentenceController::class, 'resetTeacherSentence'])->name('sentence.update');
     Route::delete('/sentences', [HomeController::class, 'deleteSentences'])->name('sentences.delete');
     Route::get('/search', [HomeController::class, 'search'])->name('sentences.search');

@@ -37,15 +37,91 @@ class HomeController extends Controller
         DB::table('sentences')->delete();
     }
 
-    public function completedSentences()
+    public function completedSentences(Request $request)
     {
+        $query = Sentence::with(['translations.user', 'reviewer'])
+            ->where('status', 2);
 
-        $sentencesTranslate = Sentence::with(['translations', 'author'])->where('status', 1)->orderBy('id', 'desc')->paginate(10);
-        $sentencesTranslateCompleted = Sentence::query()->where('status', 2)->orderBy('id', 'desc')->paginate(10);
+        // Фильтрация по дате от
+        if ($request->filled('date_from')) {
+            $query->where(function($q) use ($request) {
+                $q->whereDate('reviewed_at', '>=', $request->date_from)
+                    ->orWhereDate('created_at', '>=', $request->date_from);
+            });
+        }
 
-        $users = User::query()->where('role', 3)->get();
+        // Фильтрация по дате до
+        if ($request->filled('date_to')) {
+            $query->where(function($q) use ($request) {
+                $q->whereDate('reviewed_at', '<=', $request->date_to)
+                    ->orWhereDate('created_at', '<=', $request->date_to);
+            });
+        }
 
-        return view('sentences.completed', compact('sentencesTranslateCompleted', 'users'));
+        // Фильтрация по переводчику
+        if ($request->filled('translator_id')) {
+            $query->whereHas('translations', function($q) use ($request) {
+                $q->where('user_id', $request->translator_id);
+            });
+        }
+
+        // Фильтрация по корректору
+        if ($request->filled('reviewer_id')) {
+            $query->where('reviewed_by', $request->reviewer_id);
+        }
+
+        // Сортировка
+        $sortBy = $request->get('sort_by', 'date');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        switch ($sortBy) {
+            case 'id':
+                // Сортировка по ID
+                $query->orderBy('id', $sortOrder);
+                break;
+
+            case 'sentence':
+                // Сортировка по тексту предложения
+                $query->orderBy('sentence', $sortOrder);
+                break;
+
+            case 'date':
+            default:
+                // Сортировка по дате подтверждения (reviewed_at),
+                // но если NULL то используем created_at
+                if ($sortOrder === 'desc') {
+                    // Сначала новые: сортируем NULL в конец
+                    $query->orderByRaw('COALESCE(reviewed_at, created_at) DESC');
+                } else {
+                    // Сначала старые: сортируем NULL в начало
+                    $query->orderByRaw('COALESCE(reviewed_at, created_at) ASC');
+                }
+                break;
+        }
+
+        $sentencesTranslateCompleted = $query->paginate(10);
+
+        // Получаем всех переводчиков и корректоров
+        $translators = User::where('role', User::ROLE_TEACHER)->get();
+        $correctors = User::where('role', User::ROLE_CORRECTOR)->get();
+
+        return view('sentences.completed', compact('sentencesTranslateCompleted', 'translators', 'correctors'));
+    }
+
+    public function returnToPending(Sentence $sentence)
+    {
+        // Проверяем, что предложение действительно в статусе 2
+        if ($sentence->status !== 2) {
+            return back()->with('error', 'Это предложение не может быть возвращено на проверку');
+        }
+
+        // Меняем статус обратно на 1
+        $sentence->status = Sentence::STATUS_PENDING;
+        $sentence->reviewed_by = null;
+        $sentence->reviewed_at = null;
+        $sentence->save();
+
+        return back()->with('success', 'Предложение возвращено на проверку');
     }
 
     public function search(Request $request)
